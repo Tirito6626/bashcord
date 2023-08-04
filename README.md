@@ -16,3 +16,14 @@
 - User: 0%
 - Webhook: 0%
 - Emoji: 0%
+# Installation
+To install code, run this:
+```php
+wget -N https://raw.githubusercontent.com/Tirito6626/bashcord/main/bashcord.sh
+```
+To use it, add this to your code:
+```bash
+source /path/to/bashcord.sh
+```
+And here you go! You can test it by typing `guild` in VScode and you should see something like this:
+![image](https://github.com/Tirito6626/bashcord/assets/99983969/3a37ddae-7597-47ae-a2c9-3e94307ddb52)
