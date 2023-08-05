@@ -6,8 +6,8 @@ if [ "" = "$PKG_OK" ]; then
   echo "$REQUIRED_PKG is missing. Setting up $REQUIRED_PKG."
   apt-get --yes install $REQUIRED_PKG
 fi
-REQUIRED_PKG2="jq"
-PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2|grep "install ok installed")
+REQUIRED_PKG2="curl"
+PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2|grep "ok")
 echo Checking for $REQUIRED_PKG2: $PKG_OK2
 if [ "" = "$PKG_OK2" ]; then
   echo "$REQUIRED_PKG2 is missing. Setting up $REQUIRED_PKG2."
