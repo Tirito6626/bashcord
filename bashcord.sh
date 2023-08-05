@@ -1,6 +1,6 @@
 #!/bin/bash
 REQUIRED_PKG="jq"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "ok")
 echo Checking for $REQUIRED_PKG: $PKG_OK
 if [ "" = "$PKG_OK" ]; then
   echo "$REQUIRED_PKG is missing. Setting up $REQUIRED_PKG."
