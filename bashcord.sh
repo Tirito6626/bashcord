@@ -1,13 +1,13 @@
 #!/bin/bash
 REQUIRED_PKG="jq"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "ok"| awk '{print $2}')
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG| grep "ok" | awk '{print $2}')
 echo Checking for $REQUIRED_PKG: $PKG_OK
 if [ "" = "$PKG_OK" ]; then
   echo "$REQUIRED_PKG is missing. Setting up $REQUIRED_PKG."
   apt-get --yes install $REQUIRED_PKG
 fi
 REQUIRED_PKG2="curl"
-PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2|grep "ok"| awk '{print $2}')
+PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2 |grep "ok" | awk '{print $2}')
 echo Checking for $REQUIRED_PKG2: $PKG_OK2
 if [ "" = "$PKG_OK2" ]; then
   echo "$REQUIRED_PKG2 is missing. Setting up $REQUIRED_PKG2."
@@ -332,7 +332,78 @@ local json='{ "name": "'"$name"'", "auto_archive_duration": "'"$auto_archive_dur
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
 echo -e $output  
 }
-
+##############################################################
+function channel_thread_join {
+local channel_id=${1}
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_thread_leave {
+local channel_id=${1}
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_thread_member_add {
+local channel_id=${1}
+local user_id=${2}
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_thread_member_remove {
+local channel_id=${1}
+local user_id=${2}
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_thread_member_get {
+local channel_id=${1}
+local user_id=${2}
+local with_member=${3}
+local json='{"with_member":'"$with_member"'}'
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_thread_members_get {
+local channel_id=${1}
+local with_member=${2}
+local after=${3}
+local limit=${4}
+local json='{"with_member":'"$with_member"',"after":'"$after"',"limit":'"$limit"'}'
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_threads_archived_public {
+local channel_id=${1}
+local before=${2}
+local limit=${3}
+local json='{"before":"'"$before"'","limit":'"$limit"'}'
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads/archived/public" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_threads_archived_private {
+local channel_id=${1}
+local before=${2}
+local limit=${3}
+local json='{"before":"'"$before"'","limit":'"$limit"'}'
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads/archived/private" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+echo -e $output  
+}
+##############################################################
+function channel_threads_archived_private_joined {
+local channel_id=${1}
+local before=${2}
+local limit=${3}
+local json='{"before":"'"$before"'","limit":'"$limit"'}'
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/users/@me/threads/archived/private" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+echo -e $output  
+}
 
 
 function bot { 
