@@ -1,13 +1,13 @@
 #!/bin/bash
 REQUIRED_PKG="jq"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "ok")
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "ok"| awk '{print $2}')
 echo Checking for $REQUIRED_PKG: $PKG_OK
 if [ "" = "$PKG_OK" ]; then
   echo "$REQUIRED_PKG is missing. Setting up $REQUIRED_PKG."
   apt-get --yes install $REQUIRED_PKG
 fi
 REQUIRED_PKG2="curl"
-PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2|grep "ok")
+PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2|grep "ok"| awk '{print $2}')
 echo Checking for $REQUIRED_PKG2: $PKG_OK2
 if [ "" = "$PKG_OK2" ]; then
   echo "$REQUIRED_PKG2 is missing. Setting up $REQUIRED_PKG2."
