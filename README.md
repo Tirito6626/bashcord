@@ -11,7 +11,7 @@
 - Guild: 100%
 - Guild-scheduled-event: 100%
 - Guild-template: 100%
-- Channel: 86%
+- Channel: 100%
 - Invite: 100%
 - User: 0%
 - Webhook: 0%
