@@ -15,7 +15,7 @@
 - Invite: 100%
 - User: 0%
 - Webhook: 0%
-- Emoji: 0%
+- Guild Emoji: 0%
 # Installation
 To install code, run this:
 ```php
