@@ -708,7 +708,46 @@ template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
 echo -e $output 
 }
-
+##############################################################
+function guild_emojis {
+guild_id=${1}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo -e $output 
+}
+##############################################################
+function guild_emoji {
+guild_id=${1}
+emoji_id=${2}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo -e $output 
+}
+##############################################################
+function guild_emoji_create {
+guild_id=${1}
+name=${3}
+image=${4}
+roles=${5}
+local json='{"name":"'"$name"'", "image":"'"$image"'", "roles": '"$roles"'}'
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | jq '.') 
+echo -e $output 
+}
+##############################################################
+function guild_emoji_modify {
+guild_id=${1}
+emoji_id=${2}
+name=${3}
+roles=${5}
+local json='{"name":"'"$name"'", "roles": '"$roles"'}'
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+echo -e $output 
+}
+##############################################################
+function guild_emoji_delete {
+guild_id=${1}
+emoji_id=${2}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+echo -e $output 
+}
 
 
 function guild-template {
@@ -739,6 +778,7 @@ output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: 
 echo $output
 }
 
+
 bot=$(curl https://discord.com/api/v10/applications/@me -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
 apilatency=$(curl -o /dev/null -s -w ' API Latency: %{time_total}s\n'  https://discord.com/api/v10/applications/@me H "Authorization: Bot ${token}" -H "Content-Type: application/json")
 botid=$(echo $bot | awk '{print $2}' | jq '.bot.id')
@@ -746,7 +786,7 @@ botname=$(echo $bot | jq '.bot.username')
 botdiscriminator=$(echo $bot | jq '.bot.discriminator')
 echo "========================================"
 echo "Logged as ${botname}#${botdiscriminator}"
-echo "Running bashcord v0.4.6"
+echo "Running bashcord v0.4.7"
 echo "${apilatency}"
 echo "========================================"
 # read prompt args1 args2 args3 args4 args4 
