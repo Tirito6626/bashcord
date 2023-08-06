@@ -1,3 +1,5 @@
+# ⚠️ Warning ⚠️
+ bashcord is right now not fully done and is on active development.
 # bashcord
  Unofficial discord API wrapper made in Bash
 
