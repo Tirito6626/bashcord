@@ -1,5 +1,5 @@
 # bashcord
- Unofficial discord API wrapper made in Bash
+ Unofficial discord API wrapper written in Bash
 
 ## Features:
 - Lightweight
@@ -8,14 +8,18 @@
 - Use with any linux package
 
 ## To-do:
-- Guild: 100%
-- Guild-scheduled-event: 100%
-- Guild-template: 100%
-- Channel: 100%
-- Invite: 100%
-- User: 0%
-- Webhook: 0%
-- Guild Emoji: 100%
+- [Guild](https://discord.com/developers/docs/resources/guild): 100%
+- [Guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event): 100%
+- [Guild-template](https://discord.com/developers/docs/resources/guild-template): 100%
+- [Channel](https://discord.com/developers/docs/resources/channel): 100%
+- [Invite](https://discord.com/developers/docs/resources/invite): 100%
+- [User](https://discord.com/developers/docs/resources/user): 0%
+- [Webhook](https://discord.com/developers/docs/resources/webhook): 0%
+- [Guild Emoji](https://discord.com/developers/docs/resources/emoji): 100%
+- [Stage Instance](https://discord.com/developers/docs/resources/stage-instance): 0%
+- [Sticker](https://discord.com/developers/docs/resources/sticker): 0%
+- [Auto-moderation](https://discord.com/developers/docs/resources/auto-moderation): 0%
+- [Audit Log](https://discord.com/developers/docs/resources/audit-log): 0%
 # Installation
 To install code, run this:
 ```php
