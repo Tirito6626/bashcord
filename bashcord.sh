@@ -786,7 +786,7 @@ botname=$(echo $bot | jq '.bot.username')
 botdiscriminator=$(echo $bot | jq '.bot.discriminator')
 echo "========================================"
 echo "Logged as ${botname}#${botdiscriminator}"
-echo "Running bashcord v0.4.7"
+echo "Running bashcord v0.4.8"
 echo "${apilatency}"
 echo "========================================"
 # read prompt args1 args2 args3 args4 args4 
