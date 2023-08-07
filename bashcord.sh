@@ -410,7 +410,37 @@ function bot {
 output=$(curl "https://discord.com/api/v10/applications/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
 echo -e $output
 }
-
+##############################################################
+function bot_user {
+output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output
+}
+##############################################################
+function bot_user_edit {
+local username=${1}
+local avatar=${2}
+local json='{ "username": "'"$username"'", "avatar":"'"$avatar"'"}'
+output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+echo $output
+}
+##############################################################
+function bot_guilds {
+output=$(curl "https://discord.com/api/v10/users/@me/guilds" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output
+}
+##############################################################
+function bot_member {
+  local guild_id=${2}
+output=$(curl "https://discord.com/api/v10/users/@me/guilds/${guild_id}/member" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output
+}
+##############################################################
+function bot_dm_create {
+  local user_id=${2}
+  local json='"{"recipient_id":"'"$user_id"'"}'
+output=$(curl "https://discord.com/api/v10/users/@me/channels" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | jq '.') 
+echo $output
+}
 
 
 function guild {
@@ -777,7 +807,6 @@ user_id=${1}
 output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
 echo $output
 }
-
 
 bot=$(curl https://discord.com/api/v10/applications/@me -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
 apilatency=$(curl -o /dev/null -s -w ' API Latency: %{time_total}s\n'  https://discord.com/api/v10/applications/@me H "Authorization: Bot ${token}" -H "Content-Type: application/json")
