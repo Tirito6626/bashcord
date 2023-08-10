@@ -26,6 +26,7 @@
 - Config: 20%
 # Installation
 **NOTE: Up to 1.0.0 this thing will be removed/reworked**
+
 To install code, run this:
 ```php
 wget -N https://raw.githubusercontent.com/Tirito6626/bashcord/main/bashcord.sh
