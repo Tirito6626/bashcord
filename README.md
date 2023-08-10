@@ -1,4 +1,4 @@
-![image](https://cdn.discordapp.com/attachments/1129769809039609962/1138160995261497525/Polish_20230807_192509123.jpg)
+![logo](https://cdn.discordapp.com/attachments/1129769809039609962/1139251618072772678/Polish_20230810_193803119.jpg)
 # bashcord
  Unofficial discord API wrapper written in Bash
 
