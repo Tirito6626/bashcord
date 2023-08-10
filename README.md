@@ -21,7 +21,11 @@
 - [Sticker](https://discord.com/developers/docs/resources/sticker): 0%
 - [Auto-moderation](https://discord.com/developers/docs/resources/auto-moderation): 0%
 - [Audit Log](https://discord.com/developers/docs/resources/audit-log): 0%
+- Merging to .DEB package: 50%
+- Websocket module: 30%
+- Config: 20%
 # Installation
+**NOTE: Up to 0.5.0 this thing will be removed/reworked**
 To install code, run this:
 ```php
 wget -N https://raw.githubusercontent.com/Tirito6626/bashcord/main/bashcord.sh
