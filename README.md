@@ -40,4 +40,4 @@ And here you go! You can test it by typing `guild` in VScode and you should see 
 
 ![image](https://github.com/Tirito6626/bashcord/assets/99983969/3a37ddae-7597-47ae-a2c9-3e94307ddb52)
 
-dm .\_tirito\_ if you know how to make websocket in bash
+Also check [bashcord discord server](https://dsc.gg/bashcord) for future updates
