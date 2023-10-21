@@ -9,8 +9,7 @@
 - Easy to install
 - 2000 lines of bash, few lines of JS
 # Installation
-Note: you need to have `jq` and `nodejs` installed on your device before you continue
-
+Note: you need to have [jq](https://jqlang.github.io/jq/download/) and [nodejs](https://github.com/nodesource/distributions) installed on your device before you continue
 To install code, run this:
 ```php
 git clone https://raw.githubusercontent.com/Tirito6626/bashcord.git
