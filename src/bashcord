@@ -1,79 +1,176 @@
 #!/bin/bash
-REQUIRED_PKG="jq"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG| grep "ok" | awk '{print $2}')
-echo Checking for $REQUIRED_PKG: $PKG_OK
-if [ "" = "$PKG_OK" ]; then
-  echo "$REQUIRED_PKG is missing. Setting up $REQUIRED_PKG."
-  apt-get --yes install $REQUIRED_PKG
-fi
-REQUIRED_PKG2="curl"
-PKG_OK2=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG2 |grep "ok" | awk '{print $2}')
-echo Checking for $REQUIRED_PKG2: $PKG_OK2
-if [ "" = "$PKG_OK2" ]; then
-  echo "$REQUIRED_PKG2 is missing. Setting up $REQUIRED_PKG2."
-  apt-get --yes install $REQUIRED_PKG2
-fi
+
+
+#useful function
+function find_func {
+ local output=$(cat /usr/bin/bashcord | sed -n '/^function '"${1}"'/,/^}/p' | grep -v 'function [o][n]' | grep 'local' | awk '{ $1=""; print }') || output="Nothing found :("
+ echo $output
+}
+function list_func {
+  if [[ "$1" = "" ]]; then
+  echo "enter category. guild, channel, user, bot, builders"
+  elif [[ "$1" = "builders" ]]; then
+  local output=$(cat /usr/bin/bashcord | sed -n '/^function add/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
+  echo $output 
+  else
+  local output=$(cat /usr/bin/bashcord | sed -n '/^function '"${1}"'/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
+  echo $output 
+  fi
+}
+
+#builders
+function slashCommandBuilder {
+ slash_json="{}"
+} 
+##############################################################
+function addName {
+  slash_json=$(echo $slash_json | jq '. += { "name": "'"${1}"'" }')
+}
+##############################################################
+function addNameLocalizations {
+  slash_json=$(echo $slash_json | jq '. += { "name_localizations": "'"${1}"'" }')
+}
+
+
+function clientBuilder {
+client_json="{}"
+client_json=$( echo $client_json | jq '. += { "properties": { "os": "linux", "browser": "bashcord", "device": "bashcord" }  }')
+}
+##############################################################
+function addToken {
+local token=${1}
+client_json=$( echo $client_json | jq '. += { "token": "'"$token"'" }')
+}
+##############################################################
+function addIntents {
+local intents=${1}
+client_json=$( echo $client_json | jq '. += { "intents": '"$intents"' }')
+}
+##############################################################
+function addShards {
+local shard_id=${1}
+local shard_count=${2}
+client_json=$( echo $client_json | jq '. += { "shard": ['"$shard_id"','"$shard_count"'] }')
+}
+##############################################################
+
+function presenceBuilder {
+client_json=$( echo $client_json | jq '. += { "presence": {} }')
+}
+##############################################################
+function addStatus {
+local status=${1}
+client_json=$( echo $client_json | jq '.presence += { "status": "'"$status"'" }')
+} 
+##############################################################
+function addSince {
+local since=${1}
+client_json=$( echo $client_json | jq '.presence += { "since": '"$since"' }')
+}
+##############################################################
+function addAFK {
+local adk=${1}
+client_json=$( echo $client_json | jq '.presence += { "afk": '"$afk"' }')
+}
+##############################################################
+
+function activitiesBuilder {
+client_json=$( echo $client_json | jq '.presence += { "activities": [{}] }')
+}
+##############################################################
+function addName {
+local name=$1
+client_json=$( echo $client_json | jq '.presence.activities[] += { "name":"'"$name"'" }')
+}
+##############################################################
+function addType {
+local type=$1
+client_json=$( echo $client_json | jq '.presence.activities[] += { "type":'"$type"' }')
+}
+##############################################################
+function addStreamURL {
+local stream_url=$1
+client_json=$( echo $client_json | jq '.presence.activities[] += { "url":"'"$stream_url"'" }')
+}
+##############################################################
+function addCreatedAt {
+local createdat=$1
+client_json=$( echo $client_json | jq '.presence.activities[] += { "created_at":"'"$createdat"'" }')
+}
+##############################################################
+function addTimestamps {
+local start=$1
+local end=$1
+client_json=$( echo $client_json | jq '.presence.activities[] += { "timestamps": { "name":"'"$name"'" } }')
+}
+##############################################################
+function addApplicationID {
+local id=$1
+client_json=$( echo  $client_json | jq '.presence.activities[] += { "application_id":"'"$id"'" }')
+}
+
+
 function messageBuilder {
 message_json="{}"
 }
 ##############################################################
 function addContent {
 local content=${1}
-message_json=$( echo $message_json | jq --arg content "$content" '. += { "content": "\($content)" }')
+message_json=$( echo -e $message_json | jq --arg content "$content" '. += { "content": "\($content)" }')
 }
 ##############################################################
 function addTTS {
 local tts=${1}
-message_json=$( echo $message_json | jq '. += { "tts":'"$tts"' }')
+message_json=$( echo -e $message_json | jq '. += { "tts":'"$tts"' }')
 }
 ##############################################################
 function embedBuilder {
-message_json=$( echo $message_json | jq '. += { "embeds": [{}] }')
+message_json=$( echo -e $message_json | jq '. += { "embeds": [{}] }')
 }
 ##############################################################
 function addTitle {
 local title=${1}
-message_json=$( echo $message_json | jq --arg title "$title" '.embeds[] += { "title": "\($title)" }')
+message_json=$( echo -e $message_json | jq --arg title "$title" '.embeds[] += { "title": "\($title)" }')
 }
 ##############################################################
 function addDescription {
 local description=${1}
-message_json=$( echo $message_json | jq --arg description "$description" '.embeds[] += { "description": "\($description)" }' )
+message_json=$( echo -e $message_json | jq --arg description "$description" '.embeds[] += { "description": "\($description)" }' )
 }
 ##############################################################
 function addColor {
 local color=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "color":"'"$color"'" }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "color":"'"$color"'" }')
 }
 ##############################################################
 function addURL {
 local url=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "url":"'"$url"'" }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "url":"'"$url"'" }')
 }
 ##############################################################
 function addTimestamp {
 local timestamp=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "timestamp":"'"$timestamp"'" }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "timestamp":"'"$timestamp"'" }')
 }
 ##############################################################
 function addColor {
 local color=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "color":"'"$color"'" }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "color":"'"$color"'" }')
 }
 ##############################################################
 function addFooter {
 local text=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "footer": {"text":"'"$text"'" } }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "footer": {"text":"'"$text"'" } }')
 }
 ##############################################################
 function addImage {
 local url=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "image":{ "url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "image":{ "url":"'"$url"'" } }')
 }
 ##############################################################
 function addVideo {
 local url=${1}
-message_json=$( echo $message_json | jq '.embeds[] += { "video":{ "url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "video":{ "url":"'"$url"'" } }')
 }
 ##############################################################
 function addThumbnail {
@@ -81,75 +178,83 @@ local url=${1}
 local proxy_url=${2}
 local height=${3}
 local width=${4}
-message_json=$( echo $message_json | jq '.embeds[] += { "thumbnail":{ "url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "thumbnail":{ "url":"'"$url"'" } }')
 }
 ##############################################################
 function addProvider {
 local name=${1}
 local url=${2}
-message_json=$( echo $message_json | jq '.embeds[] += { "provider":{ "name":"'"$name"'","url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "provider":{ "name":"'"$name"'","url":"'"$url"'" } }')
 }
 ##############################################################
 function addAuthor {
 local name=${1}
 local url=${2}
-message_json=$( echo $message_json | jq '.embeds[] += { "author":{ "name":"'"$name"'","url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "author":{ "name":"'"$name"'","url":"'"$url"'" } }')
 }
 ##############################################################
+#i suggest not to use it multiple times
 function addField {
 local name=${1}
 local value=${2}
 local inline=${3}
-message_json=$( echo $message_json | jq '.embeds[] += { "fields": [{}] }')
-message_json=$( echo $message_json | jq '.embeds[].fields[] |= { "name":"'"$name"'","value":"'"$value"'" } ')
+message_json=$( echo -e $message_json | jq '.embeds[] += { "fields": [{}] }')
+message_json=$( echo -e $message_json | jq '.embeds[].fields[] |= { "name":"'"$name"'","value":"'"$value"'" } ')
 }
 
-
+#functions
 function channel {
 channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_modify {
 channel_id=${1}
 json=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X PATCH --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_delete {
 channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_messages {
 channel_id=${1}
 json=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message {
 channel_id=${1}
 message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message_send {
 channel_id=${1}
 local json=${2}
-output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data "$2" -H "Content-Type: application/json" -X POST --silent) 
+echo $output 
+
 }
 ##############################################################
 function channel_crossport-message_send {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/crosspost" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_reaction_add {
@@ -157,7 +262,8 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_reaction_remove {
@@ -165,7 +271,8 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_reaction_user_remove {
@@ -174,7 +281,8 @@ local message_id=${2}
 local emoji=${3}
 local user_id=${4}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_reactions {
@@ -182,14 +290,16 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_reactions_remove {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_reactions_emoji_remove {
@@ -197,7 +307,8 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message_edit {
@@ -205,22 +316,25 @@ local channel_id=${1}
 local json=${2}
 local message_id=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message_delete {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}"  -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message_bulk-delete {
 local channel_id=${1}
 local messages_array=${2}
 local json='{"messages": '"$messages_array"' }'
-output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/bulk-delete" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
+echo $output 
+
 }
 ##############################################################
 function channel_permissions_edit {
@@ -231,20 +345,23 @@ local deny=${4}
 local type=${5}
 local json='{"allow": "'"$allow"'", "deny"; "'"$deny"'", "type": '"$type"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/permissions/${overwrite_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_permissions_delete {
 local channel_id=${1}
 local overwrite_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/permissions/${overwrite_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_invites {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_invites_create {
@@ -258,7 +375,8 @@ local target_user_id=${7}
 local target_application_id=${7}
 local json='{"max_age": '"$max_age"', "max_uses"; '"$max_uses"', "temporary": '"$temporary"', "unique": '"$unique"', "target_type": '"$target_type"', "target_user_id": '"$target_user_id"', "target_application_id":'"$target_application_id"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_follow {
@@ -266,33 +384,38 @@ local channel_id=${1}
 local webhook_channel_id=${2}
 local json='{"webhook_channel_id": '"$webhook_channel_id"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/followers" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_typing {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/typing" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_pins {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/typing" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message_pin {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/pins/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_message_unpin {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/pins/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function group-dm_recipient_add {
@@ -302,14 +425,16 @@ local access_token=${3}
 local nick=${4}
 local json='{ "access_token": "'"$access_token"'", "nick": "'"$nick"'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/recipients/${user_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function group-dm_recipient_remove {
 local channel_id=${1}
 local user_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/recipients/${user_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_message_start {
@@ -320,7 +445,8 @@ local auto_archive_duration=${4}
 local rate_limit_per_user=${5}
 local json='{ "name": "'"$name"'", "auto_archive_duration": "'"$auto_archive_duration"'", "rate_limit_per_user": "'"$rate_limit_per_user"'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/threads" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_start {
@@ -330,33 +456,38 @@ local auto_archive_duration=${3}
 local rate_limit_per_user=${4}
 local json='{ "name": "'"$name"'", "auto_archive_duration": "'"$auto_archive_duration"'", "rate_limit_per_user": "'"$rate_limit_per_user"'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_join {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_leave {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_member_add {
 local channel_id=${1}
 local user_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_member_remove {
 local channel_id=${1}
 local user_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_member_get {
@@ -365,7 +496,8 @@ local user_id=${2}
 local with_member=${3}
 local json='{"with_member":'"$with_member"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_thread_members_get {
@@ -375,7 +507,8 @@ local after=${3}
 local limit=${4}
 local json='{"with_member":'"$with_member"',"after":'"$after"',"limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_threads_archived_public {
@@ -384,7 +517,8 @@ local before=${2}
 local limit=${3}
 local json='{"before":"'"$before"'","limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads/archived/public" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_threads_archived_private {
@@ -393,7 +527,8 @@ local before=${2}
 local limit=${3}
 local json='{"before":"'"$before"'","limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads/archived/private" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 ##############################################################
 function channel_threads_archived_private_joined {
@@ -402,18 +537,22 @@ local before=${2}
 local limit=${3}
 local json='{"before":"'"$before"'","limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/users/@me/threads/archived/private" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output  
+echo $output 
+
 }
 
 
 function bot { 
 output=$(curl "https://discord.com/api/v10/applications/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-echo -e $output
+echo $output 
+
 }
 ##############################################################
 function bot_user {
 output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo $output
+echo $output 
+
+
 }
 ##############################################################
 function bot_user_edit {
@@ -421,138 +560,186 @@ local username=${1}
 local avatar=${2}
 local json='{ "username": "'"$username"'", "avatar":"'"$avatar"'"}'
 output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
-echo $output
+echo $output 
+
+
+}
+##############################################################
+function bot_user_application_role_connection {
+local application_id=${1}
+local platform_name=${2}
+local platform_username=${3}
+local metadata=${4}
+local json='{ "platform_name": "'"$platform_name"'", "platform_username":"'"$platform_username"'", "metadata": ['"$metadata"']}'
+output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output 
+
+
+}
+##############################################################
+function bot_user_application_role_connection_update {
+local application_id=${1}
+local platform_name=${2}
+local platform_username=${3}
+local metadata=${4}
+local json='{ "platform_name": "'"$platform_name"'", "platform_username":"'"$platform_username"'", "metadata": ['"$metadata"']}'
+output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent | jq '.') 
+echo $output 
+
+
 }
 ##############################################################
 function bot_guilds {
 output=$(curl "https://discord.com/api/v10/users/@me/guilds" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo $output
+echo $output 
+
+
 }
 ##############################################################
 function bot_member {
   local guild_id=${2}
 output=$(curl "https://discord.com/api/v10/users/@me/guilds/${guild_id}/member" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo $output
+echo $output 
+
+
 }
 ##############################################################
 function bot_dm_create {
   local user_id=${2}
   local json='"{"recipient_id":"'"$user_id"'"}'
 output=$(curl "https://discord.com/api/v10/users/@me/channels" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | jq '.') 
-echo $output
+echo $output 
+
+
 }
 
 
 function guild {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_delete {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_channels {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/channels" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_threads_active {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/threads/active" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_member {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 function guild_members {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_member_role_add {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 role_id=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 function guild_member_role_remove {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 role_id=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_member_kick {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 function guild_member_ban {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 delete_message_days=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json"  --data '{"delete_message_days":'"${delete_message_days}"'}' -X PUT --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 function guild_member_unban {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_bans_get {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 function guild_ban_get {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_roles {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 function guild_roles_create {
-guild_id=${1}
+local guild_id=${1}
 name=${2}
 permissions=${3}
 color=${4}
 hoist=${5}
 mentionable=${6}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{ "name": "'"${name}"'", "permissions": "'"${permissions}"'", "color": '"${color}"', "hoist": '"${hoist}"', "icon": null, "unicode_emoji": null, "mentionable": '"${mentionable}"' }' -X POST --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 echo $json
 }
 ##############################################################
 function guild_roles_positions_modify {
-guild_id=${1}
+local guild_id=${1}
 role_id=${2}
 position=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"id":'"$role_id"',"position":'"$position"'}' -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_roles_modify {
-guild_id=${1}
+local guild_id=${1}
 role_id=${2}
 name=${3}
 permissions=${4}
@@ -561,229 +748,297 @@ hoist=${6}
 mentionable=${7}
 json='{ "name":'"${name}"', "permissions":'"${permissions}"', "color":'"${color}"', "hoist":'"${hoist}"', "icon":null, "unicode_emoji":null,"mentionable":'"${mentionable}"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data $json -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_roles_delete {
-guild_id=${1}
+local guild_id=${1}
 role_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_mfa_modify {
-guild_id=${1}
+local guild_id=${1}
 mfa_lvl=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/mfa" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"level": '$mfa_lvl'}' -X POST --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_prune_count {
-guild_id=${1}
+local guild_id=${1}
 days=${2}
 include_roles=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days', "include_roles",'"$include_roles"'}' -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_prune_count {
-guild_id=${1}
+local guild_id=${1}
 days=${2}
 compute_prune_count=${3}
 include_roles=${4}
 reason=${5}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days',"compute_prune_count":'"$compute_prune_count"', "include_roles",'"$include_roles"',"reason":'"$reason"'}' -X POST --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_voice_regions {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/regions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_invites {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_integrations {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_integrations_delete {
-guild_id=${1}
+local guild_id=${1}
 intergration_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations/${intergration_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_widgets_settings {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_widgets_settings_modify {
-guild_id=${1}
+local guild_id=${1}
 widget_json=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -H "Content-Type: application/json" --data "$widget_json" -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_widgets {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.json" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_widgets_image {
-guild_id=${1}
+local guild_id=${1}
 type=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.png" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"type":'"$type"'}' -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_vanity-url {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/vanity-url" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_welcome-screen {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_welcome-screen_modify {
-guild_id=${1}
+local guild_id=${1}
 enabled=${2}
 welcome_channels=${3}
 description=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"enabled":'"$enabled"',"welcome_channels":'"$welcome_channels"',"description":'"$description"'}' -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_onboarding {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_onboarding_modify {
-guild_id=${1}
+local guild_id=${1}
 prompts=${2}
 default_channel_ids=${3}
 enabled=${4}
 mode=${5}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"prompts":'"$prompts"',"default_channel_ids":'"$default_channel_ids"',"enabled":'"$enabled"',"mode":'"$mode"'}' -X PUT --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_voice-states_client_modify {
-guild_id=${1}
+local guild_id=${1}
 channel_id=${2}
 suppress=${3}
 request_to_speak_timestamp=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_voice-states_modify {
-guild_id=${1}
+local guild_id=${1}
 user_id=${2}
 channel_id=${3}
 suppress=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_templates {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_templates_create {
-guild_id=${1}
+local guild_id=${1}
 name=${2}
 description=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X POST --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_templates_sync {
-guild_id=${1}
+local guild_id=${1}
 template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_templates_modify {
-guild_id=${1}
+local guild_id=${1}
 template_code=${2}
 name=${3}
 description=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_templates_delete {
-guild_id=${1}
+local guild_id=${1}
 template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_emojis {
-guild_id=${1}
+local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_emoji {
-guild_id=${1}
+local guild_id=${1}
 emoji_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_emoji_create {
-guild_id=${1}
+local guild_id=${1}
 name=${3}
 image=${4}
 roles=${5}
 local json='{"name":"'"$name"'", "image":"'"$image"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild_emoji_modify {
-guild_id=${1}
+local guild_id=${1}
 emoji_id=${2}
 name=${3}
 roles=${5}
 local json='{"name":"'"$name"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
-echo -e $output 
+echo $outputecho $output 
+
 }
 ##############################################################
 function guild_emoji_delete {
-guild_id=${1}
+local guild_id=${1}
 emoji_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
-echo -e $output 
-}
-
+echo $output 
+ }
+##############################################################
+function guild_stickers {
+local guild_id=${1}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output 
+ }
+##############################################################
+function guild_sticker {
+local guild_id=${1}
+sticker_id=${2}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output 
+ }
+##############################################################
+function guild_sticker_create {
+local guild_id=${1}
+name=${2}
+description=${3}
+tags=${4}
+file=${5}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent | jq '.') 
+echo $output 
+ }
+##############################################################
+function guild_sticker_modify {
+local guild_id=${1}
+name=${2}
+description=${3}
+tags=${4}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+echo $output 
+ }
+##############################################################
+function guild_sticker_delete {
+local guild_id=${1}
+sticker_id=${2}
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+echo $output 
+ }
 
 function guild-template {
 template_code=${1}
 output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo -e $output 
+echo $output 
+
 }
 ##############################################################
 function guild-template_guild_create {
@@ -791,32 +1046,1175 @@ template_code=${1}
 name=${2}
 icon=${3}
 output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"icon":'"$icon"'}' -H "Content-Type: application/json" -X POST --silent | jq '.') 
-echo -e $output 
-}
+echo $output 
 
+}
 
 
 function invite {
 invite_code=${1}
 output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo $output
+echo $output 
+
 }
+##############################################################
+function invite_delete {
+invite_code=${1}
+output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+echo $output 
+
+}
+
+function sticker {
+sticker_id=${1}
+output=$(curl "https://discord.com/api/v10/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output 
+
+}
+
+function sticker-packs {
+output=$(curl "https://discord.com/api/v10/sticker-packs" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+echo $output 
+
+}
+
 
 function user {
 user_id=${1}
 output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
-echo $output
+echo $output 
+
 }
 
-bot=$(curl https://discord.com/api/v10/applications/@me -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
-apilatency=$(curl -o /dev/null -s -w ' API Latency: %{time_total}s\n'  https://discord.com/api/v10/applications/@me H "Authorization: Bot ${token}" -H "Content-Type: application/json")
-botid=$(echo $bot | awk '{print $2}' | jq '.bot.id')
-botname=$(echo $bot | jq '.bot.username')
-botdiscriminator=$(echo $bot | jq '.bot.discriminator')
-echo "========================================"
-echo "Logged as ${botname}#${botdiscriminator}"
-echo "Running bashcord v0.4.8"
-echo "${apilatency}"
-echo "========================================"
-# read prompt args1 args2 args3 args4 args4 
-# bash ${1}
+#just util vars
+just="false"
+# for ((i=10; i<=65; i++)); do varname="e$i"; value=false; eval "$varname=\$value"; done 
+i=0
+e9="false"
+e10=$just
+e11=$just
+e12=$just
+e13=$just
+e14=$just
+e15=$just
+e16=$just
+e17=$just
+e18=$just
+e19=$just
+e20=$just
+e21=$just
+e22=$just
+e23=$just
+e24=$just
+e25=$just
+e26=$just
+e27=$just
+e28=$just
+e29=$just
+e30=$just
+e31=$just
+e32=$just
+e33=$just
+e34=$just
+e35=$just
+e36=$just
+e37=$just
+e38=$just
+e39=$just
+e40=$just
+e41=$just
+e42=$just
+e43=$just
+e44=$just
+e45=$just
+e46=$just
+e47=$just
+e48=$just
+e49=false
+e50=$just
+e51=$just
+e52=$just
+e53=$just
+e54=$just
+e55=$just
+e56=$just
+e57=$just
+e58=$just
+e59=$just
+e60=$just
+e61=$just
+e62=$just
+e63=$just
+e64=$just
+e65=$just
+function onReady {
+  eval "${1}"
+  }
+function onApplicationCommandPermissionsUpdate {
+  arg10=${1}
+  if [[ "$e10" = "true" ]]; then
+  eval "$arg10"
+  else 
+  e10=true
+  fi
+}
+function onApplicationCommandPermissionsDelete {
+  arg11=${1}
+  if $e11; then
+  eval "$arg11"
+  else 
+  e11=true
+  fi
+}
+function onChannelCreate {
+  arg12=${1}
+  if [[ "$e12" = "true" ]]; then
+  eval "$arg12"
+  else 
+  e12="true"
+  fi
+}
+
+function onChannelUpdate {
+  arg13=${1}  
+  if [[ "$e13" = "true" ]]; then
+  eval "$arg13"
+  else 
+  e13="true"
+  fi
+}
+
+function onChannelDelete {
+  arg14=${1}
+  if $e14; then
+  eval "$arg14"
+  else 
+  e14=true
+  fi
+}
+
+function onChannelPinsUpdate {
+  arg15=${1}
+  if $e15; then
+  eval "$arg15"
+  else 
+  e15=true
+  fi
+}
+
+function onThreadCreate {
+  arg16=${1}
+  if $e16; then
+  eval "$arg16"
+  else 
+  e16=true
+  fi
+}
+
+function onThreadUpdate {
+  arg17=${1}
+  if $e17; then
+  eval "$arg17"
+  else 
+  e17=true
+  fi
+}
+
+function onThreadDelete {
+  arg18=${1}
+  if $e18; then
+  eval "$arg18"
+  else 
+  e10=true
+  fi
+  }
+
+
+function onThreadListSync {
+  arg19=${1}
+  if $e19; then
+  eval "$arg19"
+  else 
+  e10=true
+  fi
+  }
+
+
+function onThreadMemberUpdate {
+  arg20=${1}
+  if $e20; then
+  eval "$arg20"
+  else 
+  e20=true
+  fi
+  }
+
+
+function onThreadMembersUpdate {
+  arg21=${1}
+  if $e21; then
+  eval "$arg21"
+  else 
+  e21=true
+  fi
+  }
+
+
+function onGuildCreate {
+ arg22=${1}
+ if $e22; then
+ eval "$arg22"
+  else 
+  e22=true
+  fi
+  }
+
+
+function onGuildUpdate {
+  arg23=${1}
+  if $e23; then
+  eval "$arg23"
+  else 
+  e23=true
+  fi
+  }
+
+
+function onGuildDelete {
+  arg24=${1}
+  if $e24; then
+  eval "$arg24"
+  else 
+  e24=true
+  fi
+  }
+
+
+function onGuildAuditLogEntryCreate {
+   arg25=${1}
+   if $e25; then
+  eval "$arg25"
+  else 
+  e25=true
+  fi
+  }
+
+
+function onGuildBanAdd {
+   arg26=${1}
+   if $e26; then
+  eval "$arg26"
+  else 
+  e26=true
+  fi
+  }
+
+
+function onGuildBanRemove {
+   arg27=${1}
+   if $e27; then
+  eval "$arg27"
+  else 
+  e27=true
+  fi
+  }
+
+
+function onGuildEmojisUpdate {
+   arg28=${1}
+   if $e28; then
+  eval "$arg28"
+  else 
+  e28=true
+  fi
+  }
+
+
+function onGuildStickersUpdate {
+   arg29=${1}
+   if $e29; then
+  eval "$arg29"
+  else 
+  e29=true
+  fi
+  }
+
+
+function onGuildIntegrationsUpdate {
+   arg30=${1}
+   if $e30; then
+  eval "$arg30"
+  else 
+  e30=true
+  fi
+  }
+
+
+function onGuildMemberAdd {
+   arg31=${1}
+   if $e31; then
+  eval "$arg31"
+  else 
+  e31=true
+  fi
+  }
+
+
+function onGuildMemberRemove {
+   arg32=${1}
+   if $e32; then
+  eval "$arg32"
+  else 
+  e32=true
+  fi
+  }
+
+
+function onGuildMemberUpdate {
+   arg33=${1}
+   if $e33; then
+  eval "$arg33"
+  else 
+  e33=true
+  fi
+  }
+
+
+function onGuildMembersChunk {
+   arg34=${1}
+   if $e34; then
+  eval "$arg34"
+  else 
+  e34=true
+  fi
+  }
+
+function onGuildRoleCreate {
+   arg35=${1}
+   if $e35; then
+  eval "$arg35"
+  else 
+  e35=true
+  fi
+  }
+
+
+function onGuildRoleUpdate {
+   arg36=${1}
+   if $e36; then
+  eval "$arg36"
+  else 
+  e36=true
+  fi
+  }
+
+
+function onGuildRoleDelete {
+   arg37=${1}
+   if $e37; then
+  eval "$arg37"
+  else 
+  e37=true
+  fi
+  }
+
+
+function onGuildScheduledEventCreate {
+   arg38=${1}
+   if $e38; then
+  eval "$arg38"
+  else 
+  e38=true
+  fi
+  }
+
+
+function onGuildScheduledEventUpdate {
+   arg39=${1}
+   if $e39; then
+  eval "$arg39"
+  else 
+  e39=true
+  fi
+  }
+
+
+function onGuildScheduledEventDelete {
+   arg40=${1}
+   if $e40; then
+  eval "$arg40"
+  else 
+  e40=true
+  fi
+  }
+
+
+function onGuildScheduledEventUserAdd {
+   arg41=${1}
+   if $e41; then
+  eval "$arg41"
+  else 
+  e41=true
+  fi
+  }
+
+
+function onGuildScheduledEventUserRemove {
+   arg42=${1}
+   if $e42; then
+  eval "$arg42"
+  else 
+  e42=true
+  fi
+  }
+
+
+function onIntegrationCreate {
+   arg43=${1}
+   if $e43; then
+  eval "$arg43"
+  else 
+  e43=true
+  fi
+  }
+
+
+function onIntegrationUpdate {
+   arg44=${1}
+   if $e44; then
+  eval "$arg44"
+  else 
+  e44=true
+  fi
+  }
+
+
+function onIntegrationDelete {
+   arg45=${1}
+   if $e45; then
+  eval "$arg45"
+  else 
+  e45=true
+  fi
+  }
+
+
+function onInteractionCreate {
+   arg46=${1}
+   if $e46; then
+  eval "$arg46"
+  else 
+  e46=true
+  fi
+  }
+
+
+function onInviteCreate {
+   arg47=${1}
+   if $e47; then
+  eval "$arg47"
+  else 
+  e47=true
+  fi
+  }
+
+
+function onInviteDelete {
+   arg48=${1}
+   if $e48; then
+  eval "$arg48"
+  else 
+  e48=true
+  fi
+  }
+
+
+function onMessageCreate {
+  arg49=${1}
+  if [[ "$e49" = "true" ]]; then
+  eval "$arg49"
+  else 
+  e49="true"
+  fi
+  }
+
+function onMessageUpdate {
+  arg50=${1}  
+  if [[ "$e50" = "true" ]]; then
+  eval "$arg50"
+  else 
+  e50="true"
+  fi
+}
+function onMessageDelete {
+  arg51=${1}  
+   if $e51; then
+  eval "$arg51"
+  else 
+  e51=true
+  fi
+}
+
+function onMessageDeleteBulk {
+   arg52=${1}
+   if $e52; then
+  eval "$arg52"
+  else 
+  e52=true
+  fi
+  }
+
+
+function onMessageReactionAdd {
+   arg53=${1}
+   if $e53; then
+  eval "$arg53"
+  else 
+  e53=true
+  fi
+  }
+
+
+function onMessageReactionRemove {
+   arg54=${1}
+   if $e54; then
+  eval "$arg54"
+  else 
+  e54=true
+  fi
+  }
+
+
+function onMessageReactionRemoveAll {
+   arg55=${1}
+   if $e55; then
+  eval "$arg55"
+  else 
+  e55=true
+  fi
+  }
+
+
+function onMessageReactionRemoveEmoji {
+   arg56=${1}
+   if $e56; then
+  eval "$arg56"
+  else 
+  e56=true
+  fi
+  }
+
+
+function onPresenceUpdate {
+   arg57=${1}
+   if $e57; then
+  eval "$arg57"
+  else 
+  e57=true
+  fi
+  }
+
+
+function onStageInstanceCreate {
+   arg58=${1}
+   if $e58; then
+  eval "$arg58"
+  else 
+  e58=true
+  fi
+  }
+
+
+function onStageInstanceUpdate {
+   arg59=${1}
+   if $e59; then
+  eval "$arg59"
+  else 
+  e59=true
+  fi
+  }
+
+
+function onStageInstanceDelete {
+   arg60=${1}
+   if $e60; then
+  eval "$arg60"
+  else 
+  e60=true
+  fi
+  }
+
+
+function onTypingStart {
+   arg61=${1}
+   if $e61; then
+  eval "$arg61"
+  else 
+  e61=true
+  fi
+  }
+
+
+function onUserUpdate {
+   arg62=${1}
+   if $e62; then
+  eval "$arg62"
+  else 
+  e62=true
+  fi
+  }
+
+
+function onVoiceStateUpdate {
+   arg63=${1}
+   if $e63; then
+  eval "$arg63"
+  else 
+  e63=true
+  fi
+  }
+
+
+function onVoiceServerUpdate {
+   arg64=${1}
+   if $e64; then
+  eval "$arg64"
+  else 
+  e64=true
+  fi
+  }
+
+
+function onWebhooksUpdate {
+   arg65=${1}
+   if $e65; then
+  eval "$arg65"
+  else 
+  e65=true
+  fi
+  }
+
+
+
+
+function startClient {
+if [[ "$client_json" = "" ]]; then
+echo "Client is not ready. Use ClientBuilder for intialization"
+exit
+else
+echo $client_json > /etc/bashcord/config.json
+fi  
+path="/etc/bashcord/modules/node_modules"
+ if [ ! -d "$path" ]; then
+ cd /etc/bashcord/modules  && npm i ws
+ fi
+
+# attempt of making websocket in bash
+#tmux new -d -s bashcord 
+#tmux send-keys -t bashcord.0  'websocat "wss://gateway.discord.gg/?v=10&encoding=json"' ENTER
+#sleep 1
+#tmux send-keys -t bashcord.0 '{ "op": 2, "d": '"$(echo $client_json)"' }' ENTER
+#interval=$(tmux capture-pane -J -p -S - | head -n 4 | grep "heartbeat_interval" | cut -c 54-58)
+#sleep 2
+
+#while true; do
+#tmux send-keys -t bashcord.0 '{ "op": 1, "d" : null }' ENTER
+#sleep $((${interval}/1000))
+#done
+#echo $intervalcommand > /tmp/interval.sh
+#bash /tmp/interval.sh
+# while true; do
+#(tmux capture-pane -J -p -S -2 | uniq) 
+node /etc/bashcord/modules/websocket.js | while read -r line; do 
+if [[ "$line" != "" ]]; then
+output=$(echo $line | jq -r '.t')
+output2=$(echo $line | jq -r '.op')
+output3=$(echo $line | jq -r '.d')
+
+#if something goes wrong, uncomment this
+ #echo -e "Event name: $output"
+ #echo -e "OP code: $output2"
+ #echo -e "Data: $output3"
+
+user=$(curl "https://discord.com/api/v10/applications/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq -r '.id')
+case $output2 in
+0)
+case $output in
+
+READY)
+export data_onReady=$output3
+onReady "${1}" &
+;;
+APPLICATION_COMMAND_PERMISSIONS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onApplicationCommandPermissionsUpdate=$output3
+onApplicationCommandPermissionsUpdate "$arg8" &
+fi
+;;
+
+AUTO_MODERATION_RULE_CREATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onAutoModerationRuleCreate=$output3
+onAutoModerationRuleCreate "$arg9" &
+fi
+;;
+
+AUTO_MODERATION_RULE_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onAutoModerationRuleUpdate=$output3
+onAutoModerationRuleUpdate "$arg10" &
+fi
+;;
+
+AUTO_MODERATION_RULE_DELETE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onAutoModerationRuleDelete=$output3
+onAutoModerationRuleDelete "$arg11" &
+fi
+;;
+
+CHANNEL_CREATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onChannelCreate=$output3
+onChannelCreate "$arg12" &
+fi
+;;
+
+CHANNEL_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onChannelUpdate=$output3
+onChannelUpdate "$arg13" &
+fi
+;;
+
+CHANNEL_DELETE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onChannelDelete=$output3
+onChannelDelete "$arg14" &
+fi
+;;
+
+CHANNEL_PINS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onChannelPinsUpdate=$output3
+onChannelPinsUpdate "$arg15" &
+fi
+;;
+
+THREAD_CREATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onThreadCreate=$output3
+onThreadCreate "$arg16" &
+fi
+;;
+
+THREAD_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onThreadUpdate=$output3
+onThreadUpdate "$arg17" &
+fi
+;;
+
+THREAD_DELETE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onThreadDelete=$output3
+onThreadDelete "$arg18" &
+fi
+;;
+
+THREAD_LIST_SYNC)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onThreadListSync=$output3
+onThreadListSync "$arg19" &
+fi
+;;
+
+THREAD_MEMBER_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onThreadMemberUpdate=$output3
+onThreadMemberUpdate "$arg20" &
+fi
+;;
+
+THREAD_MEMBERS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onThreadMembersUpdate=$output3
+onThreadMembersUpdate "$arg21" &
+fi
+;;
+
+GUILD_CREATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildCreate=$output3
+onGuildCreate "$arg22" &
+fi
+;;
+
+GUILD_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildUpdate=$output3
+onGuildUpdate "$arg23" &
+fi
+;;
+
+GUILD_DELETE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildDelete=$output3
+onGuildDelete "$arg24" &
+fi
+;;
+
+GUILD_AUDIT_LOG_ENTRY_CREATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildAuditLogEntryCreate=$output3
+onGuildAuditLogEntryCreate "$arg25" &
+fi
+;;
+
+GUILD_BAN_ADD)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildBanAdd=$output3
+onGuildBanAdd "$arg26" &
+fi
+;;
+
+GUILD_BAN_REMOVE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildBanRemove=$output3
+onGuildBanRemove "$arg27" &
+fi
+;;
+
+GUILD_EMOJIS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildEmojisUpdate=$output3
+onGuildEmojisUpdate "$arg28" &
+fi
+;;
+
+GUILD_STICKERS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildStickersUpdate=$output3
+onGuildStickersUpdate "$arg29" &
+fi
+;;
+
+GUILD_INTEGRATIONS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildIntegrationsUpdate=$output3
+onfiGuildIntegrationsUpdate "$arg30" &
+fi
+;;
+
+GUILD_MEMBER_ADD)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildMemberAdd=$output3
+onGuildMemberAdd "$arg31" &
+fi
+;;
+
+GUILD_MEMBER_REMOVE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildMemberRemove=$output3
+onGuildMemberRemove "$arg32" &
+fi
+;;
+
+GUILD_MEMBER_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildMemberUpdate=$output3
+onGuildMemberUpdate "$arg33" &
+fi
+;;
+
+GUILD_MEMBERS_CHUNK)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildMembersChunk=$output3
+onGuildMembersChunk "$arg34" &
+fi
+;;
+GUILD_ROLE_CREATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildRoleCreate=$output3 
+onGuildRoleCreate "$arg35" &
+fi
+;;
+
+GUILD_ROLE_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildRoleUpdate=$output3 
+onGuildRoleUpdate "$arg36" &
+fi
+;;
+
+GUILD_ROLE_DELETE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildRoleUpdate=$output3 
+  onGuildRoleDelete "$arg37" &
+fi
+;;
+
+GUILD_SCHEDULED_EVENT_CREATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildScheduleEventCreate=$output3 
+onGuildScheduledEventCreate "$arg38" &
+fi
+;;
+
+GUILD_SCHEDULED_EVENT_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildScheduleEventUpdate=$output3 
+onGuildScheduledEventUpdate "$arg39" &
+fi
+;;
+
+GUILD_SCHEDULED_EVENT_DELETE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildScheduleEventDelete=$output3 
+onGuildScheduledEventDelete "$arg40" &
+fi
+
+;;
+
+GUILD_SCHEDULED_EVENT_USER_ADD) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildScheduleEventUserAdd=$output3 
+onGuildScheduledEventUserAdd "$arg41" &
+fi
+;;
+
+GUILD_SCHEDULED_EVENT_USER_REMOVE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onGuildScheduleEventUserRemove=$output3 
+onGuildScheduledEventUserAdd "$arg42" &
+fi
+
+;;
+
+INTEGRATION_CREATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onInteractionCreate=$output3 
+  onIntegrationCreate "$arg43" &
+fi
+;;
+
+INTEGRATION_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onIntegrationUpdate=$output3 
+  onIntegrationUpdate "$arg44" &
+fi
+;;
+
+INTEGRATION_DELETE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onIntegrationDelete=$output3 
+  onIntegrationDelete "$arg45" & 
+fi
+;;
+
+INTERACTION_CREATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onInteractionCreate=$output3
+  onInteractionCreate "$arg46" & 
+fi
+;;
+
+INVITE_CREATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onInviteCreate=$output3 
+  onInviteCreate "$arg47" & 
+fi
+;;
+
+INVITE_DELETE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onInviteDelete=$output3
+  onInviteDelete "$arg48" &
+fi
+;;
+
+MESSAGE_CREATE) 
+ author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageCreate=$output3 
+  onMessageCreate "$arg49" 
+fi
+;;
+MESSAGE_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageUpdate=$output3 
+  onMessageUpdate "$arg50" &
+fi
+
+
+;;
+MESSAGE_DELETE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageDelete=$output3 
+  onMessageDelete "$arg51" 
+fi
+;;
+
+MESSAGE_DELETE_BULK) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageDeleteBulk=$output3 
+  onMessageDeleteBulk "$arg52" &
+fi
+;;
+
+MESSAGE_REACTION_ADD) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageReactionAdd=$output3 
+  onMessageReactionAdd "$arg53" &
+fi
+;;
+
+MESSAGE_REACTION_REMOVE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageReactionRemove=$output3 
+onMessageReactionRemove "$arg54" &
+fi
+;;
+
+MESSAGE_REACTION_REMOVE_ALL) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageReactionRemoveAll=$output3 
+onMessageReactionRemoveAll "$arg55" &
+fi
+;;
+
+MESSAGE_REACTION_REMOVE_EMOJI) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onMessageReactionRemoveEmoji=$output3 
+onMessageReactionRemoveEmoji "$arg56" &
+fi
+;;
+
+PRESENCE_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onPresenceUpdate=$output3 
+  onPresenceUpdate "$arg57" &
+fi
+;;
+
+STAGE_INSTANCE_CREATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onStageInstanceCreate=$output3 
+  onStageInstanceCreate "$arg58" &
+fi
+;;
+
+STAGE_INSTANCE_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onStageInstanceUpdate=$output3 
+  onStageInstanceUpdate "$arg59" &
+fi
+;;
+
+STAGE_INSTANCE_DELETE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onStageInstanceDelete=$output3 
+  onStageInstanceDelete "$arg60" &
+fi
+;;
+
+TYPING_START) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onTypingStart=$output3 
+  onTypingStart "$arg61" &
+fi
+;;
+
+USER_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onUserUpdate=$output3 
+  onUserUpdate "$arg62" &
+fi
+;;
+
+VOICE_STATE_UPDATE) 
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onVoiceStateUpdate=$output3 
+  onVoiceStateUpdate "$arg63" &
+fi
+;;
+VOICE_SERVER_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onVoiceStateUpdate=$output3 
+  onVoiceServerUpdate "$arg64" &
+fi
+;;
+WEBHOOKS_UPDATE)
+author=$(echo "$output3" | jq -r '.author.id') 
+if [[ "$author" != "$user" ]]; then
+export data_onWebhooksUpdate=$output3 
+  onWebhooksUpdate "$arg65" &
+  fi
+esac
+;;
+9)
+echo "Session is invalid. Try to check your code on errors"
+echo "If your code is correct and you see this, write about that in bashcord discord server"
+exit
+;;
+esac
+fi
+done
+startClient
+}
