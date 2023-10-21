@@ -5,36 +5,31 @@
 ## Features:
 - Lightweight
 - Easy to use
-- Only 1 file to use
 - Use with any linux package
-
-## To-do:
-- [Guild](https://discord.com/developers/docs/resources/guild): 100%
-- [Guild-scheduled-event](https://discord.com/developers/docs/resources/guild-scheduled-event): 100%
-- [Guild-template](https://discord.com/developers/docs/resources/guild-template): 100%
-- [Channel](https://discord.com/developers/docs/resources/channel): 100%
-- [Invite](https://discord.com/developers/docs/resources/invite): 100%
-- [User](https://discord.com/developers/docs/resources/user): 0%
-- [Webhook](https://discord.com/developers/docs/resources/webhook): 0%
-- [Guild Emoji](https://discord.com/developers/docs/resources/emoji): 100%
-- [Stage Instance](https://discord.com/developers/docs/resources/stage-instance): 0%
-- [Sticker](https://discord.com/developers/docs/resources/sticker): 0%
-- [Auto-moderation](https://discord.com/developers/docs/resources/auto-moderation): 0%
-- [Audit Log](https://discord.com/developers/docs/resources/audit-log): 0%
-- Merging to .DEB package: 50%
-- Websocket module: 30%
-- Config: 20%
+- Easy to install
+- 2000 lines of bash, few lines of JS
 # Installation
 **NOTE: Up to 1.0.0 this thing will be removed/reworked**
 
 To install code, run this:
 ```php
-wget -N https://raw.githubusercontent.com/Tirito6626/bashcord/main/bashcord.sh
+git clone https://raw.githubusercontent.com/Tirito6626/bashcord.git
+mkdir /etc/bashcord
+cp -r bashcord/src/ /etc/bashcord
+cp bashcord/src/bashcord /usr/bin
+chmod 666 /usr/bin/bashcord
+rm -r bashcord /etc/bashcord/bashcord
 ```
 To use it, add this to your code:
 ```bash
-source /path/to/bashcord.sh
+source $(command -v bashcord)
 token="YOUR TOKEN HERE"
+clientBuilder;
+ addToken $token
+ addIntents <intents, e.g. 33280>
+ 
+presenceBuilder;
+ addStatus <status, e.g. online>
 ```
 And here you go! You can test it by typing `guild` in VScode and you should see something like this:
 
