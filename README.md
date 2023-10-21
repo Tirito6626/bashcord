@@ -9,7 +9,7 @@
 - Easy to install
 - 2000 lines of bash, few lines of JS
 # Installation
-**NOTE: Up to 1.0.0 this thing will be removed/reworked**
+Note: you need to have `jq` and `nodejs` installed on your device before you continue
 
 To install code, run this:
 ```php
