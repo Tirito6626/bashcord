@@ -195,11 +195,12 @@ message_json=$( echo -e $message_json | jq '.embeds[] += { "author":{ "name":"'"
 ##############################################################
 #i suggest not to use it multiple times
 function addField {
-local name=${1}
-local value=${2}
-local inline=${3}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "fields": [{}] }')
-message_json=$( echo -e $message_json | jq '.embeds[].fields[] |= { "name":"'"$name"'","value":"'"$value"'" } ')
+  local name=${1}
+  local value=${2}
+  local inline=${3} || inline=false
+  message_json=$(echo $message_json | jq '.embeds[] += { "fields": [{}] }')
+  json='{ "name":"'"$name"'", "value":"'"$value"'" }'
+  message_json=$(echo "$message_json" | jq '.embeds[].fields[] += { '"$json"'' })
 }
 
 #functions
@@ -1080,11 +1081,27 @@ echo $output
 
 
 function user {
-user_id=${1}
+local user_id=${1}
 output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
 echo $output 
-
 }
+
+function application {
+  local application_id=${1}
+  local with_localizations=${2} || with_localizations=false
+  local json='{ "with_localizations": '"$with_locatlizations"' }'
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d $json | jq '.') 
+echo $output 
+}
+
+function latency_api {
+local output=$(curl -o /dev/null -s -w 'Total: %{time_total}s\n'  https://www.discord.com/api | awk '{print $2}' | cut -c 3-5)
+echo $output
+}
+function latency_websocket {
+echo $latency
+}
+
 
 #just util vars
 just="false"
@@ -1730,7 +1747,7 @@ if [[ "$line" != "" ]]; then
 output=$(echo $line | jq -r '.t')
 output2=$(echo $line | jq -r '.op')
 output3=$(echo $line | jq -r '.d')
-
+latency=$(echo $line | jq -r '.p')
 #if something goes wrong, uncomment this
  #echo -e "Event name: $output"
  #echo -e "OP code: $output2"
