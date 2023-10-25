@@ -18,6 +18,8 @@ function list_func {
   fi
 }
 
+re=false
+
 #builders
 function slashCommandBuilder {
  slash_json="{}"
@@ -35,6 +37,10 @@ function addNameLocalizations {
 function clientBuilder {
 client_json="{}"
 client_json=$( echo $client_json | jq '. += { "properties": { "os": "linux", "browser": "bashcord", "device": "bashcord" }  }')
+}
+##############################################################
+function addReactOnBots {
+re=${1}
 }
 ##############################################################
 function addToken {
@@ -1764,464 +1770,638 @@ onReady "${1}" &
 ;;
 APPLICATION_COMMAND_PERMISSIONS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onApplicationCommandPermissionsUpdate=$output3
 onApplicationCommandPermissionsUpdate "$arg8" &
+fi
 fi
 ;;
 
 AUTO_MODERATION_RULE_CREATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onAutoModerationRuleCreate=$output3
 onAutoModerationRuleCreate "$arg9" &
+fi
 fi
 ;;
 
 AUTO_MODERATION_RULE_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onAutoModerationRuleUpdate=$output3
 onAutoModerationRuleUpdate "$arg10" &
+fi
 fi
 ;;
 
 AUTO_MODERATION_RULE_DELETE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onAutoModerationRuleDelete=$output3
 onAutoModerationRuleDelete "$arg11" &
+fi
 fi
 ;;
 
 CHANNEL_CREATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelCreate=$output3
 onChannelCreate "$arg12" &
+fi
 fi
 ;;
 
 CHANNEL_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelUpdate=$output3
 onChannelUpdate "$arg13" &
+fi
 fi
 ;;
 
 CHANNEL_DELETE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelDelete=$output3
 onChannelDelete "$arg14" &
+fi
 fi
 ;;
 
 CHANNEL_PINS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelPinsUpdate=$output3
 onChannelPinsUpdate "$arg15" &
+fi
 fi
 ;;
 
 THREAD_CREATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadCreate=$output3
 onThreadCreate "$arg16" &
+fi
 fi
 ;;
 
 THREAD_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadUpdate=$output3
 onThreadUpdate "$arg17" &
+fi
 fi
 ;;
 
 THREAD_DELETE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadDelete=$output3
 onThreadDelete "$arg18" &
+fi
 fi
 ;;
 
 THREAD_LIST_SYNC)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadListSync=$output3
 onThreadListSync "$arg19" &
+fi
 fi
 ;;
 
 THREAD_MEMBER_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadMemberUpdate=$output3
 onThreadMemberUpdate "$arg20" &
+fi
 fi
 ;;
 
 THREAD_MEMBERS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadMembersUpdate=$output3
 onThreadMembersUpdate "$arg21" &
+fi
 fi
 ;;
 
 GUILD_CREATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildCreate=$output3
 onGuildCreate "$arg22" &
+fi
 fi
 ;;
 
 GUILD_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildUpdate=$output3
 onGuildUpdate "$arg23" &
+fi
 fi
 ;;
 
 GUILD_DELETE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildDelete=$output3
 onGuildDelete "$arg24" &
+fi
 fi
 ;;
 
 GUILD_AUDIT_LOG_ENTRY_CREATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildAuditLogEntryCreate=$output3
-onGuildAuditLogEntryCreate "$arg25" &
+onGuildAuditLogEntryCreate "$arg25" 
+fi&
 fi
 ;;
 
 GUILD_BAN_ADD)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildBanAdd=$output3
 onGuildBanAdd "$arg26" &
+fi
 fi
 ;;
 
 GUILD_BAN_REMOVE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildBanRemove=$output3
 onGuildBanRemove "$arg27" &
+fi
 fi
 ;;
 
 GUILD_EMOJIS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildEmojisUpdate=$output3
 onGuildEmojisUpdate "$arg28" &
+fi
 fi
 ;;
 
 GUILD_STICKERS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildStickersUpdate=$output3
 onGuildStickersUpdate "$arg29" &
+fi
 fi
 ;;
 
 GUILD_INTEGRATIONS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildIntegrationsUpdate=$output3
 onfiGuildIntegrationsUpdate "$arg30" &
+fi 
 fi
 ;;
 
 GUILD_MEMBER_ADD)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMemberAdd=$output3
 onGuildMemberAdd "$arg31" &
+fi
 fi
 ;;
 
 GUILD_MEMBER_REMOVE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMemberRemove=$output3
 onGuildMemberRemove "$arg32" &
+fi
 fi
 ;;
 
 GUILD_MEMBER_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMemberUpdate=$output3
 onGuildMemberUpdate "$arg33" &
+fi
 fi
 ;;
 
 GUILD_MEMBERS_CHUNK)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMembersChunk=$output3
 onGuildMembersChunk "$arg34" &
 fi
+fi
 ;;
 GUILD_ROLE_CREATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildRoleCreate=$output3 
 onGuildRoleCreate "$arg35" &
+fi
 fi
 ;;
 
 GUILD_ROLE_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildRoleUpdate=$output3 
 onGuildRoleUpdate "$arg36" &
+fi
 fi
 ;;
 
 GUILD_ROLE_DELETE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildRoleUpdate=$output3 
   onGuildRoleDelete "$arg37" &
+fi
 fi
 ;;
 
 GUILD_SCHEDULED_EVENT_CREATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventCreate=$output3 
-onGuildScheduledEventCreate "$arg38" &
+onGuildScheduledEventCreate "$arg38"
+fi
 fi
 ;;
 
 GUILD_SCHEDULED_EVENT_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventUpdate=$output3 
-onGuildScheduledEventUpdate "$arg39" &
+onGuildScheduledEventUpdate "$arg39"
+fi
 fi
 ;;
 
 GUILD_SCHEDULED_EVENT_DELETE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventDelete=$output3 
-onGuildScheduledEventDelete "$arg40" &
+onGuildScheduledEventDelete "$arg40"
+fi
 fi
 
 ;;
 
 GUILD_SCHEDULED_EVENT_USER_ADD) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventUserAdd=$output3 
 onGuildScheduledEventUserAdd "$arg41" &
+fi
 fi
 ;;
 
 GUILD_SCHEDULED_EVENT_USER_REMOVE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventUserRemove=$output3 
 onGuildScheduledEventUserAdd "$arg42" &
+fi
 fi
 
 ;;
 
 INTEGRATION_CREATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInteractionCreate=$output3 
   onIntegrationCreate "$arg43" &
+fi
 fi
 ;;
 
 INTEGRATION_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onIntegrationUpdate=$output3 
   onIntegrationUpdate "$arg44" &
+fi
 fi
 ;;
 
 INTEGRATION_DELETE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onIntegrationDelete=$output3 
   onIntegrationDelete "$arg45" & 
+fi
 fi
 ;;
 
 INTERACTION_CREATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInteractionCreate=$output3
   onInteractionCreate "$arg46" & 
+fi
 fi
 ;;
 
 INVITE_CREATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInviteCreate=$output3 
   onInviteCreate "$arg47" & 
+fi
 fi
 ;;
 
 INVITE_DELETE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInviteDelete=$output3
   onInviteDelete "$arg48" &
+fi
 fi
 ;;
 
 MESSAGE_CREATE) 
  author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageCreate=$output3 
-  onMessageCreate "$arg49" 
+  onMessageCreate "$arg49" &
+fi
 fi
 ;;
 MESSAGE_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageUpdate=$output3 
   onMessageUpdate "$arg50" &
+fi
 fi
 
 
 ;;
 MESSAGE_DELETE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageDelete=$output3 
-  onMessageDelete "$arg51" 
+  onMessageDelete "$arg51" &
+fi
 fi
 ;;
 
 MESSAGE_DELETE_BULK) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageDeleteBulk=$output3 
   onMessageDeleteBulk "$arg52" &
+fi
 fi
 ;;
 
 MESSAGE_REACTION_ADD) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionAdd=$output3 
   onMessageReactionAdd "$arg53" &
+fi
 fi
 ;;
 
 MESSAGE_REACTION_REMOVE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionRemove=$output3 
 onMessageReactionRemove "$arg54" &
+fi
 fi
 ;;
 
 MESSAGE_REACTION_REMOVE_ALL) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionRemoveAll=$output3 
-onMessageReactionRemoveAll "$arg55" &
+onMessageReactionRemoveAll "$arg55" 
+fi&
 fi
 ;;
 
 MESSAGE_REACTION_REMOVE_EMOJI) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionRemoveEmoji=$output3 
 onMessageReactionRemoveEmoji "$arg56" &
+fi
 fi
 ;;
 
 PRESENCE_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onPresenceUpdate=$output3 
   onPresenceUpdate "$arg57" &
+fi
 fi
 ;;
 
 STAGE_INSTANCE_CREATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onStageInstanceCreate=$output3 
   onStageInstanceCreate "$arg58" &
+fi
 fi
 ;;
 
 STAGE_INSTANCE_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onStageInstanceUpdate=$output3 
   onStageInstanceUpdate "$arg59" &
+fi
 fi
 ;;
 
 STAGE_INSTANCE_DELETE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onStageInstanceDelete=$output3 
   onStageInstanceDelete "$arg60" &
+fi
 fi
 ;;
 
 TYPING_START) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onTypingStart=$output3 
   onTypingStart "$arg61" &
+fi
 fi
 ;;
 
 USER_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onUserUpdate=$output3 
   onUserUpdate "$arg62" &
+fi
 fi
 ;;
 
 VOICE_STATE_UPDATE) 
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onVoiceStateUpdate=$output3 
   onVoiceStateUpdate "$arg63" &
 fi
+fi
 ;;
 VOICE_SERVER_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onVoiceStateUpdate=$output3 
   onVoiceServerUpdate "$arg64" &
 fi
+fi
 ;;
 WEBHOOKS_UPDATE)
 author=$(echo "$output3" | jq -r '.author.id') 
+author2=$(echo "$output3" | jq -r '.author.bot') 
+if [[ "$author2" = "$re" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onWebhooksUpdate=$output3 
   onWebhooksUpdate "$arg65" &
+  fi
   fi
 esac
 ;;
