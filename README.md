@@ -8,20 +8,19 @@
 - Use with any linux package
 - Easy to install
 - 2000 lines of bash, few lines of JS
+# Requirements
+[jq](https://jqlang.github.io/jq/download/)
+[nodejs](https://github.com/nodesource/distributions) 
+bash
 # Installation
-Note: you need to have [jq](https://jqlang.github.io/jq/download/) and [nodejs](https://github.com/nodesource/distributions) installed on your device before you continue
 To install code, run this:
 ```php
 git clone https://raw.githubusercontent.com/Tirito6626/bashcord.git
-mkdir /etc/bashcord
-cp -r bashcord/src/ /etc/bashcord
-cp bashcord/src/bashcord /usr/bin
-chmod 666 /usr/bin/bashcord
-rm -r bashcord /etc/bashcord/bashcord
+
 ```
 To use it, add this to your code:
 ```bash
-source $(command -v bashcord)
+source /path/to/bashcord/src/bashcord
 token="YOUR TOKEN HERE"
 clientBuilder;
  addToken $token
