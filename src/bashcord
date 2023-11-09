@@ -1,42 +1,54 @@
 #!/bin/bash
 
+# change these variables before start
+jq_binary="jq"
+nodejs_binary="node"
+npm_binary="npm"
+autoupdate=false
 
+
+
+
+
+
+
+#####################################
+LOCATION=$(echo ${BASH_SOURCE} | sed 's/bashcord$//g')
 #useful function
 function find_func {
- local output=$(cat /usr/bin/bashcord | sed -n '/^function '"${1}"'/,/^}/p' | grep -v 'function [o][n]' | grep 'local' | awk '{ $1=""; print }') || output="Nothing found :("
+ local output=$(cat ${BASH_SOURCE} | sed -n '/^function '"${1}"'/,/^}/p' | grep -v 'function [o][n]' | grep 'local' | awk '{ $1=""; print }') || output="Nothing found :("
  echo $output
 }
 function list_func {
   if [[ "$1" = "" ]]; then
   echo "enter category. guild, channel, user, bot, builders"
   elif [[ "$1" = "builders" ]]; then
-  local output=$(cat /usr/bin/bashcord | sed -n '/^function add/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
+  local output=$(cat ${BASH_SOURCE} | sed -n '/^function add/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
   echo $output 
   else
-  local output=$(cat /usr/bin/bashcord | sed -n '/^function '"${1}"'/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
+  local output=$(cat ${BASH_SOURCE} | sed -n '/^function '"${1}"'/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
   echo $output 
   fi
 }
 
 re=false
-
 #builders
 function slashCommandBuilder {
  slash_json="{}"
 } 
 ##############################################################
 function addName {
-  slash_json=$(echo $slash_json | jq '. += { "name": "'"${1}"'" }')
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "name": "'"${1}"'" }')
 }
 ##############################################################
 function addNameLocalizations {
-  slash_json=$(echo $slash_json | jq '. += { "name_localizations": "'"${1}"'" }')
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "name_localizations": "'"${1}"'" }')
 }
 
 
 function clientBuilder {
 client_json="{}"
-client_json=$( echo $client_json | jq '. += { "properties": { "os": "linux", "browser": "bashcord", "device": "bashcord" }  }')
+client_json=$( echo $client_json | ${jq_binary} '. += { "properties": { "os": "linux", "browser": "bashcord", "device": "bashcord" }  }')
 }
 ##############################################################
 function addReactOnBots {
@@ -45,74 +57,74 @@ re=${1} || re=false
 ##############################################################
 function addToken {
 local token=${1}
-client_json=$( echo $client_json | jq '. += { "token": "'"$token"'" }')
+client_json=$( echo $client_json | ${jq_binary} '. += { "token": "'"$token"'" }')
 }
 ##############################################################
 function addIntents {
 local intents=${1}
-client_json=$( echo $client_json | jq '. += { "intents": '"$intents"' }')
+client_json=$( echo $client_json | ${jq_binary} '. += { "intents": '"$intents"' }')
 }
 ##############################################################
 function addShards {
 local shard_id=${1}
 local shard_count=${2}
-client_json=$( echo $client_json | jq '. += { "shard": ['"$shard_id"','"$shard_count"'] }')
+client_json=$( echo $client_json | ${jq_binary} '. += { "shard": ['"$shard_id"','"$shard_count"'] }')
 }
 ##############################################################
 
 function presenceBuilder {
-client_json=$( echo $client_json | jq '. += { "presence": {} }')
+client_json=$( echo $client_json | ${jq_binary} '. += { "presence": {} }')
 }
 ##############################################################
 function addStatus {
 local status=${1}
-client_json=$( echo $client_json | jq '.presence += { "status": "'"$status"'" }')
+client_json=$( echo $client_json | ${jq_binary} '.presence += { "status": "'"$status"'" }')
 } 
 ##############################################################
 function addSince {
 local since=${1}
-client_json=$( echo $client_json | jq '.presence += { "since": '"$since"' }')
+client_json=$( echo $client_json | ${jq_binary} '.presence += { "since": '"$since"' }')
 }
 ##############################################################
 function addAFK {
 local adk=${1}
-client_json=$( echo $client_json | jq '.presence += { "afk": '"$afk"' }')
+client_json=$( echo $client_json | ${jq_binary} '.presence += { "afk": '"$afk"' }')
 }
 ##############################################################
 
 function activitiesBuilder {
-client_json=$( echo $client_json | jq '.presence += { "activities": [{}] }')
+client_json=$( echo $client_json | ${jq_binary} '.presence += { "activities": [{}] }')
 }
 ##############################################################
 function addName {
 local name=$1
-client_json=$( echo $client_json | jq '.presence.activities[] += { "name":"'"$name"'" }')
+client_json=$( echo $client_json | ${jq_binary} '.presence.activities[] += { "name":"'"$name"'" }')
 }
 ##############################################################
 function addType {
 local type=$1
-client_json=$( echo $client_json | jq '.presence.activities[] += { "type":'"$type"' }')
+client_json=$( echo $client_json | ${jq_binary} '.presence.activities[] += { "type":'"$type"' }')
 }
 ##############################################################
 function addStreamURL {
 local stream_url=$1
-client_json=$( echo $client_json | jq '.presence.activities[] += { "url":"'"$stream_url"'" }')
+client_json=$( echo $client_json | ${jq_binary} '.presence.activities[] += { "url":"'"$stream_url"'" }')
 }
 ##############################################################
 function addCreatedAt {
 local createdat=$1
-client_json=$( echo $client_json | jq '.presence.activities[] += { "created_at":"'"$createdat"'" }')
+client_json=$( echo $client_json | ${jq_binary} '.presence.activities[] += { "created_at":"'"$createdat"'" }')
 }
 ##############################################################
 function addTimestamps {
 local start=$1
 local end=$1
-client_json=$( echo $client_json | jq '.presence.activities[] += { "timestamps": { "name":"'"$name"'" } }')
+client_json=$( echo $client_json | ${jq_binary} '.presence.activities[] += { "timestamps": { "name":"'"$name"'" } }')
 }
 ##############################################################
 function addApplicationID {
 local id=$1
-client_json=$( echo  $client_json | jq '.presence.activities[] += { "application_id":"'"$id"'" }')
+client_json=$( echo  $client_json | ${jq_binary} '.presence.activities[] += { "application_id":"'"$id"'" }')
 }
 
 
@@ -122,61 +134,61 @@ message_json="{}"
 ##############################################################
 function addContent {
 local content=${1}
-message_json=$( echo -e $message_json | jq --arg content "$content" '. += { "content": "\($content)" }')
+message_json=$( echo -e $message_json | ${jq_binary} --arg content "$content" '. += { "content": "\($content)" }')
 }
 ##############################################################
 function addTTS {
 local tts=${1}
-message_json=$( echo -e $message_json | jq '. += { "tts":'"$tts"' }')
+message_json=$( echo -e $message_json | ${jq_binary} '. += { "tts":'"$tts"' }')
 }
 ##############################################################
 function embedBuilder {
-message_json=$( echo -e $message_json | jq '. += { "embeds": [{}] }')
+message_json=$( echo -e $message_json | ${jq_binary} '. += { "embeds": [{}] }')
 }
 ##############################################################
 function addTitle {
 local title=${1}
-message_json=$( echo -e $message_json | jq --arg title "$title" '.embeds[] += { "title": "\($title)" }')
+message_json=$( echo -e $message_json | ${jq_binary} --arg title "$title" '.embeds[] += { "title": "\($title)" }')
 }
 ##############################################################
 function addDescription {
 local description=${1}
-message_json=$( echo -e $message_json | jq --arg description "$description" '.embeds[] += { "description": "\($description)" }' )
+message_json=$( echo -e $message_json | ${jq_binary} --arg description "$description" '.embeds[] += { "description": "\($description)" }' )
 }
 ##############################################################
 function addColor {
 local color=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "color":"'"$color"'" }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "color":"'"$color"'" }')
 }
 ##############################################################
 function addURL {
 local url=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "url":"'"$url"'" }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "url":"'"$url"'" }')
 }
 ##############################################################
 function addTimestamp {
 local timestamp=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "timestamp":"'"$timestamp"'" }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "timestamp":"'"$timestamp"'" }')
 }
 ##############################################################
 function addColor {
 local color=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "color":"'"$color"'" }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "color":"'"$color"'" }')
 }
 ##############################################################
 function addFooter {
 local text=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "footer": {"text":"'"$text"'" } }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "footer": {"text":"'"$text"'" } }')
 }
 ##############################################################
 function addImage {
 local url=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "image":{ "url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "image":{ "url":"'"$url"'" } }')
 }
 ##############################################################
 function addVideo {
 local url=${1}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "video":{ "url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "video":{ "url":"'"$url"'" } }')
 }
 ##############################################################
 function addThumbnail {
@@ -184,19 +196,19 @@ local url=${1}
 local proxy_url=${2}
 local height=${3}
 local width=${4}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "thumbnail":{ "url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "thumbnail":{ "url":"'"$url"'" } }')
 }
 ##############################################################
 function addProvider {
 local name=${1}
 local url=${2}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "provider":{ "name":"'"$name"'","url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "provider":{ "name":"'"$name"'","url":"'"$url"'" } }')
 }
 ##############################################################
 function addAuthor {
 local name=${1}
 local url=${2}
-message_json=$( echo -e $message_json | jq '.embeds[] += { "author":{ "name":"'"$name"'","url":"'"$url"'" } }')
+message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "author":{ "name":"'"$name"'","url":"'"$url"'" } }')
 }
 ##############################################################
 #i suggest not to use it multiple times
@@ -204,9 +216,9 @@ function addField {
   local name=${1}
   local value=${2}
   local inline=${3} || inline=false
-  message_json=$(echo $message_json | jq '.embeds[] += { "fields": [{}] }')
+  message_json=$(echo $message_json | ${jq_binary} '.embeds[] += { "fields": [{}] }')
   json='{ "name":"'"$name"'", "value":"'"$value"'" }'
-  message_json=$(echo "$message_json" | jq '.embeds[].fields[] += { '"$json"'' })
+  message_json=$(echo "$message_json" | ${jq_binary} '.embeds[].fields[] += { '"$json"'' })
 }
 
 #functions
@@ -556,7 +568,7 @@ echo $output
 }
 ##############################################################
 function bot_user {
-output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 
@@ -566,7 +578,7 @@ function bot_user_edit {
 local username=${1}
 local avatar=${2}
 local json='{ "username": "'"$username"'", "avatar":"'"$avatar"'"}'
-output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 
@@ -578,7 +590,7 @@ local platform_name=${2}
 local platform_username=${3}
 local metadata=${4}
 local json='{ "platform_name": "'"$platform_name"'", "platform_username":"'"$platform_username"'", "metadata": ['"$metadata"']}'
-output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 
@@ -590,14 +602,14 @@ local platform_name=${2}
 local platform_username=${3}
 local metadata=${4}
 local json='{ "platform_name": "'"$platform_name"'", "platform_username":"'"$platform_username"'", "metadata": ['"$metadata"']}'
-output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
 echo $output 
 
 
 }
 ##############################################################
 function bot_guilds {
-output=$(curl "https://discord.com/api/v10/users/@me/guilds" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me/guilds" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 
@@ -605,7 +617,7 @@ echo $output
 ##############################################################
 function bot_member {
   local guild_id=${2}
-output=$(curl "https://discord.com/api/v10/users/@me/guilds/${guild_id}/member" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me/guilds/${guild_id}/member" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 
@@ -614,7 +626,7 @@ echo $output
 function bot_dm_create {
   local user_id=${2}
   local json='"{"recipient_id":"'"$user_id"'"}'
-output=$(curl "https://discord.com/api/v10/users/@me/channels" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/@me/channels" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 
@@ -623,28 +635,28 @@ echo $output
 
 function guild {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_delete {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_channels {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/channels" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/channels" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_threads_active {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/threads/active" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/threads/active" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -652,13 +664,13 @@ echo $output
 function guild_member {
 local guild_id=${1}
 user_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 function guild_members {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -667,7 +679,7 @@ function guild_member_role_add {
 local guild_id=${1}
 user_id=${2}
 role_id=${3}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -675,7 +687,7 @@ function guild_member_role_remove {
 local guild_id=${1}
 user_id=${2}
 role_id=${3}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -683,7 +695,7 @@ echo $output
 function guild_member_kick {
 local guild_id=${1}
 user_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -691,35 +703,35 @@ function guild_member_ban {
 local guild_id=${1}
 user_id=${2}
 delete_message_days=${3}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json"  --data '{"delete_message_days":'"${delete_message_days}"'}' -X PUT --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json"  --data '{"delete_message_days":'"${delete_message_days}"'}' -X PUT --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 function guild_member_unban {
 local guild_id=${1}
 user_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_bans_get {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 function guild_ban_get {
 local guild_id=${1}
 user_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_roles {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -730,7 +742,7 @@ permissions=${3}
 color=${4}
 hoist=${5}
 mentionable=${6}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{ "name": "'"${name}"'", "permissions": "'"${permissions}"'", "color": '"${color}"', "hoist": '"${hoist}"', "icon": null, "unicode_emoji": null, "mentionable": '"${mentionable}"' }' -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{ "name": "'"${name}"'", "permissions": "'"${permissions}"'", "color": '"${color}"', "hoist": '"${hoist}"', "icon": null, "unicode_emoji": null, "mentionable": '"${mentionable}"' }' -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 echo $json
@@ -740,7 +752,7 @@ function guild_roles_positions_modify {
 local guild_id=${1}
 role_id=${2}
 position=${3}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"id":'"$role_id"',"position":'"$position"'}' -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"id":'"$role_id"',"position":'"$position"'}' -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -754,7 +766,7 @@ color=${5}
 hoist=${6}
 mentionable=${7}
 json='{ "name":'"${name}"', "permissions":'"${permissions}"', "color":'"${color}"', "hoist":'"${hoist}"', "icon":null, "unicode_emoji":null,"mentionable":'"${mentionable}"'}'
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data $json -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data $json -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -762,7 +774,7 @@ echo $output
 function guild_roles_delete {
 local guild_id=${1}
 role_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -770,7 +782,7 @@ echo $output
 function guild_mfa_modify {
 local guild_id=${1}
 mfa_lvl=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/mfa" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"level": '$mfa_lvl'}' -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/mfa" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"level": '$mfa_lvl'}' -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -779,7 +791,7 @@ function guild_prune_count {
 local guild_id=${1}
 days=${2}
 include_roles=${3}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days', "include_roles",'"$include_roles"'}' -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days', "include_roles",'"$include_roles"'}' -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -790,28 +802,28 @@ days=${2}
 compute_prune_count=${3}
 include_roles=${4}
 reason=${5}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days',"compute_prune_count":'"$compute_prune_count"', "include_roles",'"$include_roles"',"reason":'"$reason"'}' -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days',"compute_prune_count":'"$compute_prune_count"', "include_roles",'"$include_roles"',"reason":'"$reason"'}' -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_voice_regions {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/regions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/regions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_invites {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_integrations {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -819,14 +831,14 @@ echo $output
 function guild_integrations_delete {
 local guild_id=${1}
 intergration_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations/${intergration_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations/${intergration_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_widgets_settings {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -834,14 +846,14 @@ echo $output
 function guild_widgets_settings_modify {
 local guild_id=${1}
 widget_json=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -H "Content-Type: application/json" --data "$widget_json" -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -H "Content-Type: application/json" --data "$widget_json" -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_widgets {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.json" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.json" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -849,21 +861,21 @@ echo $output
 function guild_widgets_image {
 local guild_id=${1}
 type=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.png" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"type":'"$type"'}' -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.png" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"type":'"$type"'}' -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_vanity-url {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/vanity-url" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/vanity-url" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_welcome-screen {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -873,14 +885,14 @@ local guild_id=${1}
 enabled=${2}
 welcome_channels=${3}
 description=${4}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"enabled":'"$enabled"',"welcome_channels":'"$welcome_channels"',"description":'"$description"'}' -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"enabled":'"$enabled"',"welcome_channels":'"$welcome_channels"',"description":'"$description"'}' -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_onboarding {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -891,7 +903,7 @@ prompts=${2}
 default_channel_ids=${3}
 enabled=${4}
 mode=${5}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"prompts":'"$prompts"',"default_channel_ids":'"$default_channel_ids"',"enabled":'"$enabled"',"mode":'"$mode"'}' -X PUT --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"prompts":'"$prompts"',"default_channel_ids":'"$default_channel_ids"',"enabled":'"$enabled"',"mode":'"$mode"'}' -X PUT --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -901,7 +913,7 @@ local guild_id=${1}
 channel_id=${2}
 suppress=${3}
 request_to_speak_timestamp=${4}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -911,14 +923,14 @@ local guild_id=${1}
 user_id=${2}
 channel_id=${3}
 suppress=${4}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_templates {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -927,7 +939,7 @@ function guild_templates_create {
 local guild_id=${1}
 name=${2}
 description=${3}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -935,7 +947,7 @@ echo $output
 function guild_templates_sync {
 local guild_id=${1}
 template_code=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -945,7 +957,7 @@ local guild_id=${1}
 template_code=${2}
 name=${3}
 description=${4}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -953,14 +965,14 @@ echo $output
 function guild_templates_delete {
 local guild_id=${1}
 template_code=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function guild_emojis {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -968,7 +980,7 @@ echo $output
 function guild_emoji {
 local guild_id=${1}
 emoji_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -979,7 +991,7 @@ name=${3}
 image=${4}
 roles=${5}
 local json='{"name":"'"$name"'", "image":"'"$image"'", "roles": '"$roles"'}'
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -990,7 +1002,7 @@ emoji_id=${2}
 name=${3}
 roles=${5}
 local json='{"name":"'"$name"'", "roles": '"$roles"'}'
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 echo $outputecho $output 
 
 }
@@ -998,20 +1010,20 @@ echo $outputecho $output
 function guild_emoji_delete {
 local guild_id=${1}
 emoji_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
  }
 ##############################################################
 function guild_stickers {
 local guild_id=${1}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
  }
 ##############################################################
 function guild_sticker {
 local guild_id=${1}
 sticker_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
  }
 ##############################################################
@@ -1021,7 +1033,7 @@ name=${2}
 description=${3}
 tags=${4}
 file=${5}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
 echo $output 
  }
 ##############################################################
@@ -1030,20 +1042,20 @@ local guild_id=${1}
 name=${2}
 description=${3}
 tags=${4}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
  }
 ##############################################################
 function guild_sticker_delete {
 local guild_id=${1}
 sticker_id=${2}
-output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
  }
 
 function guild-template {
 template_code=${1}
-output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -1052,7 +1064,7 @@ function guild-template_guild_create {
 template_code=${1}
 name=${2}
 icon=${3}
-output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"icon":'"$icon"'}' -H "Content-Type: application/json" -X POST --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"icon":'"$icon"'}' -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -1060,27 +1072,27 @@ echo $output
 
 function invite {
 invite_code=${1}
-output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 ##############################################################
 function invite_delete {
 invite_code=${1}
-output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 
 function sticker {
 sticker_id=${1}
-output=$(curl "https://discord.com/api/v10/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
 
 function sticker-packs {
-output=$(curl "https://discord.com/api/v10/sticker-packs" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/sticker-packs" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
 }
@@ -1088,7 +1100,7 @@ echo $output
 
 function user {
 local user_id=${1}
-output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq '.') 
+output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 }
 
@@ -1096,7 +1108,7 @@ function application {
   local application_id=${1}
   local with_localizations=${2} || with_localizations=false
   local json='{ "with_localizations": '"$with_locatlizations"' }'
-output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d $json | jq '.') 
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d $json | ${jq_binary} '.') 
 echo $output 
 }
 
@@ -1725,13 +1737,14 @@ if [[ "$client_json" = "" ]]; then
 echo "Client is not ready. Use ClientBuilder for intialization"
 exit
 else
-echo $client_json > /etc/bashcord/config.json
-fi  
-path="/etc/bashcord/modules/node_modules"
+echo $client_json > ${LOCATION}config.json
+fi
+if [[ "$autoupdate" = "true" ]]; then  
+path="${LOCATION}modules/node_modules"
  if [ ! -d "$path" ]; then
- cd /etc/bashcord/modules  && npm i ws
+ cd ${LOCATION}modules/  && ${npm_binary} i ws
  fi
-
+fi
 # attempt of making websocket in bash
 #tmux new -d -s bashcord 
 #tmux send-keys -t bashcord.0  'websocat "wss://gateway.discord.gg/?v=10&encoding=json"' ENTER
@@ -1748,18 +1761,18 @@ path="/etc/bashcord/modules/node_modules"
 #bash /tmp/interval.sh
 # while true; do
 #(tmux capture-pane -J -p -S -2 | uniq) 
-node /etc/bashcord/modules/websocket.js | while read -r line; do 
+${nodejs_binary} ${LOCATION}modules/websocket.js | while read -r line; do 
 if [[ "$line" != "" ]]; then
-output=$(echo $line | jq -r '.t')
-output2=$(echo $line | jq -r '.op')
-output3=$(echo $line | jq -r '.d')
-latency=$(echo $line | jq -r '.p')
+output=$(echo $line | ${jq_binary} -r '.t')
+output2=$(echo $line | ${jq_binary} -r '.op')
+output3=$(echo $line | ${jq_binary} -r '.d')
+latency=$(echo $line | ${jq_binary} -r '.p')
 #if something goes wrong, uncomment this
  # echo -e "Event name: $output"
  # echo -e "OP code: $output2"
  # echo -e "Data: $output3"
 
-user=$(curl "https://discord.com/api/v10/applications/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | jq -r '.id')
+user=$(curl "https://discord.com/api/v10/applications/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} -r '.id')
 case $output2 in
 0)
 case $output in
@@ -1768,8 +1781,8 @@ export data_onReady=$output3
 onReady "${1}" &
 ;;
 APPLICATION_COMMAND_PERMISSIONS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onApplicationCommandPermissionsUpdate=$output3
@@ -1779,8 +1792,8 @@ fi
 ;;
 
 AUTO_MODERATION_RULE_CREATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onAutoModerationRuleCreate=$output3
@@ -1790,8 +1803,8 @@ fi
 ;;
 
 AUTO_MODERATION_RULE_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onAutoModerationRuleUpdate=$output3
@@ -1801,8 +1814,8 @@ fi
 ;;
 
 AUTO_MODERATION_RULE_DELETE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onAutoModerationRuleDelete=$output3
@@ -1812,8 +1825,8 @@ fi
 ;;
 
 CHANNEL_CREATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelCreate=$output3
@@ -1823,8 +1836,8 @@ fi
 ;;
 
 CHANNEL_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelUpdate=$output3
@@ -1834,8 +1847,8 @@ fi
 ;;
 
 CHANNEL_DELETE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelDelete=$output3
@@ -1845,8 +1858,8 @@ fi
 ;;
 
 CHANNEL_PINS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onChannelPinsUpdate=$output3
@@ -1856,8 +1869,8 @@ fi
 ;;
 
 THREAD_CREATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadCreate=$output3
@@ -1867,8 +1880,8 @@ fi
 ;;
 
 THREAD_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadUpdate=$output3
@@ -1878,8 +1891,8 @@ fi
 ;;
 
 THREAD_DELETE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadDelete=$output3
@@ -1889,8 +1902,8 @@ fi
 ;;
 
 THREAD_LIST_SYNC)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadListSync=$output3
@@ -1900,8 +1913,8 @@ fi
 ;;
 
 THREAD_MEMBER_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadMemberUpdate=$output3
@@ -1911,8 +1924,8 @@ fi
 ;;
 
 THREAD_MEMBERS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onThreadMembersUpdate=$output3
@@ -1922,8 +1935,8 @@ fi
 ;;
 
 GUILD_CREATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildCreate=$output3
@@ -1933,8 +1946,8 @@ fi
 ;;
 
 GUILD_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildUpdate=$output3
@@ -1944,8 +1957,8 @@ fi
 ;;
 
 GUILD_DELETE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildDelete=$output3
@@ -1955,8 +1968,8 @@ fi
 ;;
 
 GUILD_AUDIT_LOG_ENTRY_CREATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildAuditLogEntryCreate=$output3
@@ -1966,8 +1979,8 @@ fi
 ;;
 
 GUILD_BAN_ADD)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildBanAdd=$output3
@@ -1977,8 +1990,8 @@ fi
 ;;
 
 GUILD_BAN_REMOVE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildBanRemove=$output3
@@ -1988,8 +2001,8 @@ fi
 ;;
 
 GUILD_EMOJIS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildEmojisUpdate=$output3
@@ -1999,8 +2012,8 @@ fi
 ;;
 
 GUILD_STICKERS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildStickersUpdate=$output3
@@ -2010,8 +2023,8 @@ fi
 ;;
 
 GUILD_INTEGRATIONS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildIntegrationsUpdate=$output3
@@ -2021,8 +2034,8 @@ fi
 ;;
 
 GUILD_MEMBER_ADD)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMemberAdd=$output3
@@ -2032,8 +2045,8 @@ fi
 ;;
 
 GUILD_MEMBER_REMOVE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMemberRemove=$output3
@@ -2043,8 +2056,8 @@ fi
 ;;
 
 GUILD_MEMBER_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMemberUpdate=$output3
@@ -2054,8 +2067,8 @@ fi
 ;;
 
 GUILD_MEMBERS_CHUNK)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildMembersChunk=$output3
@@ -2064,8 +2077,8 @@ fi
 fi
 ;;
 GUILD_ROLE_CREATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildRoleCreate=$output3 
@@ -2075,8 +2088,8 @@ fi
 ;;
 
 GUILD_ROLE_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildRoleUpdate=$output3 
@@ -2086,8 +2099,8 @@ fi
 ;;
 
 GUILD_ROLE_DELETE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildRoleUpdate=$output3 
@@ -2097,8 +2110,8 @@ fi
 ;;
 
 GUILD_SCHEDULED_EVENT_CREATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventCreate=$output3 
@@ -2108,8 +2121,8 @@ fi
 ;;
 
 GUILD_SCHEDULED_EVENT_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventUpdate=$output3 
@@ -2119,8 +2132,8 @@ fi
 ;;
 
 GUILD_SCHEDULED_EVENT_DELETE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventDelete=$output3 
@@ -2131,8 +2144,8 @@ fi
 ;;
 
 GUILD_SCHEDULED_EVENT_USER_ADD) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventUserAdd=$output3 
@@ -2142,8 +2155,8 @@ fi
 ;;
 
 GUILD_SCHEDULED_EVENT_USER_REMOVE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onGuildScheduleEventUserRemove=$output3 
@@ -2154,8 +2167,8 @@ fi
 ;;
 
 INTEGRATION_CREATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInteractionCreate=$output3 
@@ -2165,8 +2178,8 @@ fi
 ;;
 
 INTEGRATION_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onIntegrationUpdate=$output3 
@@ -2176,8 +2189,8 @@ fi
 ;;
 
 INTEGRATION_DELETE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onIntegrationDelete=$output3 
@@ -2187,8 +2200,8 @@ fi
 ;;
 
 INTERACTION_CREATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInteractionCreate=$output3
@@ -2198,8 +2211,8 @@ fi
 ;;
 
 INVITE_CREATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInviteCreate=$output3 
@@ -2209,8 +2222,8 @@ fi
 ;;
 
 INVITE_DELETE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onInviteDelete=$output3
@@ -2220,22 +2233,18 @@ fi
 ;;
 
 MESSAGE_CREATE) 
- author=$(echo "$output3" | jq -r '.author.id') 
- echo $author
-author2=$(echo "$output3" | jq -r '.author.bot') 
- echo $author2
+ author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
-echo hi1
 export data_onMessageCreate=$output3 
   onMessageCreate "$arg49" &
 fi
 fi
-echo hi2
 ;;
 MESSAGE_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageUpdate=$output3 
@@ -2246,8 +2255,8 @@ fi
 
 ;;
 MESSAGE_DELETE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageDelete=$output3 
@@ -2257,8 +2266,8 @@ fi
 ;;
 
 MESSAGE_DELETE_BULK) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageDeleteBulk=$output3 
@@ -2268,8 +2277,8 @@ fi
 ;;
 
 MESSAGE_REACTION_ADD) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionAdd=$output3 
@@ -2279,8 +2288,8 @@ fi
 ;;
 
 MESSAGE_REACTION_REMOVE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionRemove=$output3 
@@ -2290,8 +2299,8 @@ fi
 ;;
 
 MESSAGE_REACTION_REMOVE_ALL) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionRemoveAll=$output3 
@@ -2301,8 +2310,8 @@ fi
 ;;
 
 MESSAGE_REACTION_REMOVE_EMOJI) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onMessageReactionRemoveEmoji=$output3 
@@ -2312,8 +2321,8 @@ fi
 ;;
 
 PRESENCE_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onPresenceUpdate=$output3 
@@ -2323,8 +2332,8 @@ fi
 ;;
 
 STAGE_INSTANCE_CREATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onStageInstanceCreate=$output3 
@@ -2334,8 +2343,8 @@ fi
 ;;
 
 STAGE_INSTANCE_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onStageInstanceUpdate=$output3 
@@ -2345,8 +2354,8 @@ fi
 ;;
 
 STAGE_INSTANCE_DELETE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onStageInstanceDelete=$output3 
@@ -2356,8 +2365,8 @@ fi
 ;;
 
 TYPING_START) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onTypingStart=$output3 
@@ -2367,8 +2376,8 @@ fi
 ;;
 
 USER_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onUserUpdate=$output3 
@@ -2378,8 +2387,8 @@ fi
 ;;
 
 VOICE_STATE_UPDATE) 
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onVoiceStateUpdate=$output3 
@@ -2388,8 +2397,8 @@ fi
 fi
 ;;
 VOICE_SERVER_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onVoiceStateUpdate=$output3 
@@ -2398,8 +2407,8 @@ fi
 fi
 ;;
 WEBHOOKS_UPDATE)
-author=$(echo "$output3" | jq -r '.author.id') 
-author2=$(echo "$output3" | jq -r '.author.bot') 
+author=$(echo "$output3" | ${jq_binary} -r '.author.id') 
+author2=$(echo "$output3" | ${jq_binary} -r '.author.bot') 
 if [[ "$author2" = "$re" || "$author2" = "null" ]]; then
 if [[ "$author" != "$user" ]]; then
 export data_onWebhooksUpdate=$output3 

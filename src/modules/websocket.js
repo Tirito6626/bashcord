@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const client = require("/etc/bashcord/config.json")
+const client = require('./../config.json')
 const ws = new WebSocket('wss://gateway.discord.gg/?v=10&encoding=json');
 let heartbeatInterval;
 let delay
@@ -36,12 +36,9 @@ console.log(JSON.stringify({ d: data, t: event, op: op, s: seq, p: delay }))
 });
 
 ws.on('close', code => {
-
     clearInterval(heartbeatInterval);
-
     console.log(code);
     Connect();
-
 });
 }
 Connect();
