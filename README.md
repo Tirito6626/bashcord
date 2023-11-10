@@ -32,5 +32,14 @@ presenceBuilder;
 And here you go! You can test it by typing `guild` in VScode and you should see something like this:
 
 ![image](https://github.com/Tirito6626/bashcord/assets/99983969/3a37ddae-7597-47ae-a2c9-3e94307ddb52)
-
+Note: if you want to run bashcord on Pterodactyl, you should change these lines in `/src/bashcord`
+```bash
+jq_binary="/path/to/jq"
+nodejs_binary="/path/to/node"
+npm_binary="/path/to/npm"
+```
+Also, if you want to disable autoupdate on startup, change this:
+```bash
+autoupdate=false
+```
 Also check [bashcord discord server](https://dsc.gg/bashcord) for future updates
