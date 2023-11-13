@@ -38,6 +38,7 @@ presenceBuilder;
 channel_message_send <put your channel id here> "$message_json" # sending our message object which is saved in $message_json
  }
 onReady startup # letting bashcord now which function what function should be executed on startup
+startClient # start client 
 ```
 
 Note: if you want to run bashcord on Pterodactyl, you should change these lines in `/src/bashcord`
