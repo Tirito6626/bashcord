@@ -18,8 +18,9 @@ To install code, run this:
 git clone https://raw.githubusercontent.com/Tirito6626/bashcord.git
 
 ```
-To use it, add this to your code:
+Now, lets create `main.sh` file:
 ```bash
+#!/usr/bin/bash
 source /path/to/bashcord/src/bashcord
 token="YOUR TOKEN HERE"
 clientBuilder;
@@ -27,11 +28,18 @@ clientBuilder;
  addIntents <intents, e.g. 33280>
  
 presenceBuilder;
- addStatus <status, e.g. online>
-```
-And here you go! You can test it by typing `guild` in VScode and you should see something like this:
+ addStatus <status, e.g. "online">
 
-![image](https://github.com/Tirito6626/bashcord/assets/99983969/3a37ddae-7597-47ae-a2c9-3e94307ddb52)
+ #lets create startup command!
+ function startup {
+  messageBuilder; # creating message object
+      embedBuilder; # adding embed array
+        addDescription "Im alive!" # adding description to embed
+channel_message_send <put your channel id here> "$message_json" # sending our message object which is saved in $message_json
+ }
+onReady startup # letting bashcord now which function what function should be executed on startup
+```
+
 Note: if you want to run bashcord on Pterodactyl, you should change these lines in `/src/bashcord`
 ```bash
 jq_binary="/path/to/jq"
