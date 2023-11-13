@@ -1186,7 +1186,7 @@ function onReady {
   eval "${1}"
   }
 function onApplicationCommandPermissionsUpdate {
-  arg10=${1}
+  arg10=${@}
   if [[ "$e10" = "true" ]]; then
   eval "$arg10"
   else 
@@ -1194,7 +1194,7 @@ function onApplicationCommandPermissionsUpdate {
   fi
 }
 function onApplicationCommandPermissionsDelete {
-  arg11=${1}
+  arg11=${@}
   if $e11; then
   eval "$arg11"
   else 
@@ -1202,7 +1202,7 @@ function onApplicationCommandPermissionsDelete {
   fi
 }
 function onChannelCreate {
-  arg12=${1}
+  arg12=${@}
   if [[ "$e12" = "true" ]]; then
   eval "$arg12"
   else 
@@ -1211,7 +1211,7 @@ function onChannelCreate {
 }
 
 function onChannelUpdate {
-  arg13=${1}  
+  arg13=${@}  
   if [[ "$e13" = "true" ]]; then
   eval "$arg13"
   else 
@@ -1220,7 +1220,7 @@ function onChannelUpdate {
 }
 
 function onChannelDelete {
-  arg14=${1}
+  arg14=${@}
   if $e14; then
   eval "$arg14"
   else 
@@ -1229,7 +1229,7 @@ function onChannelDelete {
 }
 
 function onChannelPinsUpdate {
-  arg15=${1}
+  arg15=${@}
   if $e15; then
   eval "$arg15"
   else 
@@ -1238,7 +1238,7 @@ function onChannelPinsUpdate {
 }
 
 function onThreadCreate {
-  arg16=${1}
+  arg16=${@}
   if $e16; then
   eval "$arg16"
   else 
@@ -1247,7 +1247,7 @@ function onThreadCreate {
 }
 
 function onThreadUpdate {
-  arg17=${1}
+  arg17=${@}
   if $e17; then
   eval "$arg17"
   else 
@@ -1256,7 +1256,7 @@ function onThreadUpdate {
 }
 
 function onThreadDelete {
-  arg18=${1}
+  arg18=${@}
   if $e18; then
   eval "$arg18"
   else 
@@ -1266,7 +1266,7 @@ function onThreadDelete {
 
 
 function onThreadListSync {
-  arg19=${1}
+  arg19=${@}
   if $e19; then
   eval "$arg19"
   else 
@@ -1276,7 +1276,7 @@ function onThreadListSync {
 
 
 function onThreadMemberUpdate {
-  arg20=${1}
+  arg20=${@}
   if $e20; then
   eval "$arg20"
   else 
@@ -1286,7 +1286,7 @@ function onThreadMemberUpdate {
 
 
 function onThreadMembersUpdate {
-  arg21=${1}
+  arg21=${@}
   if $e21; then
   eval "$arg21"
   else 
@@ -1306,7 +1306,7 @@ function onGuildCreate {
 
 
 function onGuildUpdate {
-  arg23=${1}
+  arg23=${@}
   if $e23; then
   eval "$arg23"
   else 
@@ -1316,7 +1316,7 @@ function onGuildUpdate {
 
 
 function onGuildDelete {
-  arg24=${1}
+  arg24=${@}
   if $e24; then
   eval "$arg24"
   else 
@@ -1326,7 +1326,7 @@ function onGuildDelete {
 
 
 function onGuildAuditLogEntryCreate {
-   arg25=${1}
+   arg25=${@}
    if $e25; then
   eval "$arg25"
   else 
@@ -1336,7 +1336,7 @@ function onGuildAuditLogEntryCreate {
 
 
 function onGuildBanAdd {
-   arg26=${1}
+   arg26=${@}
    if $e26; then
   eval "$arg26"
   else 
@@ -1346,7 +1346,7 @@ function onGuildBanAdd {
 
 
 function onGuildBanRemove {
-   arg27=${1}
+   arg27=${@}
    if $e27; then
   eval "$arg27"
   else 
@@ -1356,7 +1356,7 @@ function onGuildBanRemove {
 
 
 function onGuildEmojisUpdate {
-   arg28=${1}
+   arg28=${@}
    if $e28; then
   eval "$arg28"
   else 
@@ -1366,7 +1366,7 @@ function onGuildEmojisUpdate {
 
 
 function onGuildStickersUpdate {
-   arg29=${1}
+   arg29=${@}
    if $e29; then
   eval "$arg29"
   else 
@@ -1376,7 +1376,7 @@ function onGuildStickersUpdate {
 
 
 function onGuildIntegrationsUpdate {
-   arg30=${1}
+   arg30=${@}
    if $e30; then
   eval "$arg30"
   else 
@@ -1386,7 +1386,7 @@ function onGuildIntegrationsUpdate {
 
 
 function onGuildMemberAdd {
-   arg31=${1}
+   arg31=${@}
    if $e31; then
   eval "$arg31"
   else 
@@ -1396,7 +1396,7 @@ function onGuildMemberAdd {
 
 
 function onGuildMemberRemove {
-   arg32=${1}
+   arg32=${@}
    if $e32; then
   eval "$arg32"
   else 
@@ -1406,7 +1406,7 @@ function onGuildMemberRemove {
 
 
 function onGuildMemberUpdate {
-   arg33=${1}
+   arg33=${@}
    if $e33; then
   eval "$arg33"
   else 
@@ -1416,7 +1416,7 @@ function onGuildMemberUpdate {
 
 
 function onGuildMembersChunk {
-   arg34=${1}
+   arg34=${@}
    if $e34; then
   eval "$arg34"
   else 
@@ -1425,7 +1425,7 @@ function onGuildMembersChunk {
   }
 
 function onGuildRoleCreate {
-   arg35=${1}
+   arg35=${@}
    if $e35; then
   eval "$arg35"
   else 
@@ -1435,7 +1435,7 @@ function onGuildRoleCreate {
 
 
 function onGuildRoleUpdate {
-   arg36=${1}
+   arg36=${@}
    if $e36; then
   eval "$arg36"
   else 
@@ -1445,7 +1445,7 @@ function onGuildRoleUpdate {
 
 
 function onGuildRoleDelete {
-   arg37=${1}
+   arg37=${@}
    if $e37; then
   eval "$arg37"
   else 
@@ -1455,7 +1455,7 @@ function onGuildRoleDelete {
 
 
 function onGuildScheduledEventCreate {
-   arg38=${1}
+   arg38=${@}
    if $e38; then
   eval "$arg38"
   else 
@@ -1465,7 +1465,7 @@ function onGuildScheduledEventCreate {
 
 
 function onGuildScheduledEventUpdate {
-   arg39=${1}
+   arg39=${@}
    if $e39; then
   eval "$arg39"
   else 
@@ -1475,7 +1475,7 @@ function onGuildScheduledEventUpdate {
 
 
 function onGuildScheduledEventDelete {
-   arg40=${1}
+   arg40=${@}
    if $e40; then
   eval "$arg40"
   else 
@@ -1485,7 +1485,7 @@ function onGuildScheduledEventDelete {
 
 
 function onGuildScheduledEventUserAdd {
-   arg41=${1}
+   arg41=${@}
    if $e41; then
   eval "$arg41"
   else 
@@ -1495,7 +1495,7 @@ function onGuildScheduledEventUserAdd {
 
 
 function onGuildScheduledEventUserRemove {
-   arg42=${1}
+   arg42=${@}
    if $e42; then
   eval "$arg42"
   else 
@@ -1505,7 +1505,7 @@ function onGuildScheduledEventUserRemove {
 
 
 function onIntegrationCreate {
-   arg43=${1}
+   arg43=${@}
    if $e43; then
   eval "$arg43"
   else 
@@ -1515,7 +1515,7 @@ function onIntegrationCreate {
 
 
 function onIntegrationUpdate {
-   arg44=${1}
+   arg44=${@}
    if $e44; then
   eval "$arg44"
   else 
@@ -1525,7 +1525,7 @@ function onIntegrationUpdate {
 
 
 function onIntegrationDelete {
-   arg45=${1}
+   arg45=${@}
    if $e45; then
   eval "$arg45"
   else 
@@ -1535,7 +1535,7 @@ function onIntegrationDelete {
 
 
 function onInteractionCreate {
-   arg46=${1}
+   arg46=${@}
    if $e46; then
   eval "$arg46"
   else 
@@ -1545,7 +1545,7 @@ function onInteractionCreate {
 
 
 function onInviteCreate {
-   arg47=${1}
+   arg47=${@}
    if $e47; then
   eval "$arg47"
   else 
@@ -1555,7 +1555,7 @@ function onInviteCreate {
 
 
 function onInviteDelete {
-   arg48=${1}
+  arg48=${@}
    if $e48; then
   eval "$arg48"
   else 
@@ -1565,7 +1565,7 @@ function onInviteDelete {
 
 
 function onMessageCreate {
-  arg49=${1}
+  arg49=${@}
   if [[ "$e49" = "true" ]]; then
   eval "$arg49"
   else 
@@ -1574,7 +1574,7 @@ function onMessageCreate {
   }
 
 function onMessageUpdate {
-  arg50=${1}  
+  arg50=${@}  
   if [[ "$e50" = "true" ]]; then
   eval "$arg50"
   else 
@@ -1582,7 +1582,7 @@ function onMessageUpdate {
   fi
 }
 function onMessageDelete {
-  arg51=${1}  
+  arg51=${@}  
    if $e51; then
   eval "$arg51"
   else 
@@ -1591,7 +1591,7 @@ function onMessageDelete {
 }
 
 function onMessageDeleteBulk {
-   arg52=${1}
+   arg52=${@}
    if $e52; then
   eval "$arg52"
   else 
@@ -1601,7 +1601,7 @@ function onMessageDeleteBulk {
 
 
 function onMessageReactionAdd {
-   arg53=${1}
+   arg53=${@}
    if $e53; then
   eval "$arg53"
   else 
@@ -1611,7 +1611,7 @@ function onMessageReactionAdd {
 
 
 function onMessageReactionRemove {
-   arg54=${1}
+   arg54=${@}
    if $e54; then
   eval "$arg54"
   else 
@@ -1621,7 +1621,7 @@ function onMessageReactionRemove {
 
 
 function onMessageReactionRemoveAll {
-   arg55=${1}
+   arg55=${@}
    if $e55; then
   eval "$arg55"
   else 
@@ -1631,7 +1631,7 @@ function onMessageReactionRemoveAll {
 
 
 function onMessageReactionRemoveEmoji {
-   arg56=${1}
+   arg56=${@}
    if $e56; then
   eval "$arg56"
   else 
@@ -1641,7 +1641,7 @@ function onMessageReactionRemoveEmoji {
 
 
 function onPresenceUpdate {
-   arg57=${1}
+   arg57=${@}
    if $e57; then
   eval "$arg57"
   else 
@@ -1651,7 +1651,7 @@ function onPresenceUpdate {
 
 
 function onStageInstanceCreate {
-   arg58=${1}
+   arg58=${@}
    if $e58; then
   eval "$arg58"
   else 
@@ -1661,7 +1661,7 @@ function onStageInstanceCreate {
 
 
 function onStageInstanceUpdate {
-   arg59=${1}
+   arg59=${@}
    if $e59; then
   eval "$arg59"
   else 
@@ -1671,7 +1671,7 @@ function onStageInstanceUpdate {
 
 
 function onStageInstanceDelete {
-   arg60=${1}
+   arg60=${@}
    if $e60; then
   eval "$arg60"
   else 
@@ -1681,7 +1681,7 @@ function onStageInstanceDelete {
 
 
 function onTypingStart {
-   arg61=${1}
+   arg61=${@}
    if $e61; then
   eval "$arg61"
   else 
@@ -1691,7 +1691,7 @@ function onTypingStart {
 
 
 function onUserUpdate {
-   arg62=${1}
+   arg62=${@}
    if $e62; then
   eval "$arg62"
   else 
@@ -1701,7 +1701,7 @@ function onUserUpdate {
 
 
 function onVoiceStateUpdate {
-   arg63=${1}
+   arg63=${@}
    if $e63; then
   eval "$arg63"
   else 
@@ -1711,7 +1711,7 @@ function onVoiceStateUpdate {
 
 
 function onVoiceServerUpdate {
-   arg64=${1}
+   arg64=${@}
    if $e64; then
   eval "$arg64"
   else 
@@ -1721,7 +1721,7 @@ function onVoiceServerUpdate {
 
 
 function onWebhooksUpdate {
-   arg65=${1}
+   arg65=${@}
    if $e65; then
   eval "$arg65"
   else 

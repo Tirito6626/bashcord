@@ -1,10 +1,10 @@
 const WebSocket = require("ws");
 const client = require('./../config.json')
+function Connect() {
 const ws = new WebSocket('wss://gateway.discord.gg/?v=10&encoding=json');
 let heartbeatInterval;
 let delay
-let lastSeq;
-function Connect() {
+let lastSeq;    
 ws.on('open', () => {
     const payload = { op: 2, d: client }
     ws.send(JSON.stringify(payload));
