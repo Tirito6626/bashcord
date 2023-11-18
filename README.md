@@ -15,7 +15,7 @@ bash
 # Installation
 To install code, run this:
 ```php
-git clone https://raw.githubusercontent.com/Tirito6626/bashcord.git
+git clone https://github.com/Tirito6626/bashcord.git
 
 ```
 Now, lets create `main.sh` file:
