@@ -56,7 +56,7 @@ re=${1} || re=false
 }
 ##############################################################
 function addToken {
-local token=${1}
+token=${1}
 client_json=$( echo $client_json | ${jq_binary} '. += { "token": "'"$token"'" }')
 }
 ##############################################################
