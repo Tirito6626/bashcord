@@ -230,38 +230,38 @@ echo $output
 }
 ##############################################################
 function channel_modify {
-channel_id=${1}
-json=${2}
-output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X PATCH --silent) 
+local channel_id=${1}
+local json=${2}
+local output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X PATCH --silent) 
 echo $output 
 
 }
 ##############################################################
 function channel_delete {
-channel_id=${1}
-output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X DELETE --silent) 
+local channel_id=${1}
+local output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X DELETE --silent) 
 echo $output 
 
 }
 ##############################################################
 function channel_messages {
-channel_id=${1}
-json=${2}
+local channel_id=${1}
+local json=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X GET --silent) 
 echo $output 
 
 }
 ##############################################################
 function channel_message {
-channel_id=${1}
-message_id=${2}
+local channel_id=${1}
+local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
 echo $output 
 
 }
 ##############################################################
 function channel_message_send {
-channel_id=${1}
+local channel_id=${1}
 local json=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data "$2" -H "Content-Type: application/json" -X POST --silent) 
 echo $output 
