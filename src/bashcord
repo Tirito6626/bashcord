@@ -725,7 +725,7 @@ local guild_id=${1}
 local limit=${2}
 local before=${3}
 local after=${4}
-local json='{ "limit": '"$limit"', "before": "'"$before"'", "after": "'"$after"'"}
+local json='{ "limit": '"$limit"', "before": "'"$before"'", "after": "'"$after"'"}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
@@ -955,7 +955,7 @@ echo $output
 ##############################################################
 function guild_templates_sync {
 local guild_id=${1}
-template_code=${2}
+local template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
 echo $output 
 
@@ -963,9 +963,9 @@ echo $output
 ##############################################################
 function guild_templates_modify {
 local guild_id=${1}
-template_code=${2}
-name=${3}
-description=${4}
+local template_code=${2}
+local name=${3}
+local description=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 echo $output 
 
@@ -973,7 +973,7 @@ echo $output
 ##############################################################
 function guild_templates_delete {
 local guild_id=${1}
-template_code=${2}
+local template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
 
@@ -988,7 +988,7 @@ echo $output
 ##############################################################
 function guild_emoji {
 local guild_id=${1}
-emoji_id=${2}
+local emoji_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
 echo $output 
 
@@ -996,9 +996,9 @@ echo $output
 ##############################################################
 function guild_emoji_create {
 local guild_id=${1}
-name=${3}
-image=${4}
-roles=${5}
+local name=${2}
+local image=${3}
+local roles=${4}
 local json='{"name":"'"$name"'", "image":"'"$image"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
 echo $output 
@@ -1007,9 +1007,9 @@ echo $output
 ##############################################################
 function guild_emoji_modify {
 local guild_id=${1}
-emoji_id=${2}
-name=${3}
-roles=${5}
+local emoji_id=${2}
+local name=${3}
+local roles=${4}
 local json='{"name":"'"$name"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 echo $outputecho $output 
@@ -1018,7 +1018,7 @@ echo $outputecho $output
 ##############################################################
 function guild_emoji_delete {
 local guild_id=${1}
-emoji_id=${2}
+local emoji_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
 echo $output 
  }
