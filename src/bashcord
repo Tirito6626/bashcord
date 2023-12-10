@@ -33,18 +33,69 @@ function list_func {
 
 re=false
 #builders
-function slashCommandBuilder {
+function applicationCommandBuilder {
  slash_json="{}"
+}
+##############################################################
+function addCommandID {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "id": "'"${1}"'" }')
+}
+##############################################################
+function addCommandType {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "type": '"${1}"' }')
+}
+##############################################################
+function addCommandApplicationID {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "application_id": "'"${1}"'" }')
+}
+##############################################################
+function addCommandGuildID {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "guild_id": "'"${1}"'" }')
 } 
 ##############################################################
-function addName {
+function addCommandName {
   slash_json=$(echo $slash_json | ${jq_binary} '. += { "name": "'"${1}"'" }')
 }
 ##############################################################
-function addNameLocalizations {
+function addCommandNameLocalizations {
   slash_json=$(echo $slash_json | ${jq_binary} '. += { "name_localizations": "'"${1}"'" }')
 }
+##############################################################
+function addCommandDescription {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "description": "'"${1}"'" }')
+}
+##############################################################
+function addCommandDescriptionLocalizations {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "description_localizations": '"${1}"' }')
+}
+##############################################################
+function addCommandDefaultMemberPermissions {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "default_member_permissions": "'"${1}"'" }')
+}
+##############################################################
+function addCommandDMPermission {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "dm_permission": '"${1}"' }')
+}
+##############################################################
+function addCommandDefaultPermission {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "default_permission": '"${1}"' }')
+}
+##############################################################
+function addCommandNSFW {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "nsfw": '"${1}"' }')
+}
+##############################################################
+function addCommandVersion {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "version": '"${1}"' }')
+}
 
+function optionsBuilder {
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "options": [] }')
+}
+##############################################################
+function addOption {
+  slash_json=$(echo $slash_json | ${jq_binary} '.options |= . + ['"$json"']')
+}
 
 function clientBuilder {
 client_json="{}"
@@ -211,14 +262,11 @@ local url=${2}
 message_json=$( echo -e $message_json | ${jq_binary} '.embeds[] += { "author":{ "name":"'"$name"'","url":"'"$url"'" } }')
 }
 ##############################################################
-#i suggest not to use it multiple times
 function addField {
   local name=${1}
   local value=${2}
   local inline=${3} || inline=false
-  message_json=$(echo $message_json | ${jq_binary} '.embeds[] += { "fields": [{}] }')
-  json='{ "name":"'"$name"'", "value":"'"$value"'" }'
-  message_json=$(echo "$message_json" | ${jq_binary} '.embeds[].fields[] += { '"$json"'' })
+  message_json=$(echo "$message_json" | ${jq_binary} '.embeds[].fields |= . + [{ "name": "'"$name"'", "value":"'"$value"'", "inline": "'"$inline"'" }]')
 }
 
 #functions
@@ -1113,13 +1161,110 @@ output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: 
 echo $output 
 }
 
-function application {
+function applications_global {
   local application_id=${1}
   local with_localizations=${2} || with_localizations=false
   local json='{ "with_localizations": '"$with_locatlizations"' }'
-output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d $json | ${jq_binary} '.') 
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d "$json" | ${jq_binary} '.') 
 echo $output 
 }
+function application_global {
+local application_id=${1}
+local command_id=${2}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+echo $output 
+}
+function application_global_create {
+local application_id=${1}
+local json=${2}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent -d "$json" | ${jq_binary} '.') 
+echo $output 
+}
+function application_global_edit {
+local application_id=${1}
+local command_id=${2}
+local json=${3}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent -d "$json" | ${jq_binary} '.') 
+echo $output 
+}
+function application_global_delete {
+local application_id=${1}
+local command_id=${2}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+echo $output 
+}
+function application_global_bulk-overwrite {
+local application_id=${1}
+local json=${2}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT -d "$json" --silent | ${jq_binary} '.') 
+echo $output 
+}
+function applications_guild {
+local application_id=${1}
+local guild_id=${2}
+local with_localizations=${3} || with_localizations=false
+local json='{ "with_localizations": '"$with_locatlizations"' }'
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d "$json" | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild_create {
+local application_id=${1}
+local guild_id=${2}
+local json=${3}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent -d "$json" | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild {
+local application_id=${1}
+local guild_id=${2}
+local command_id=${3}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild_edit {
+local application_id=${1}
+local guild_id=${2}
+local command_id=${3}
+local json=${4}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent -d $json | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild_delete {
+local application_id=${1}
+local guild_id=${2}
+local command_id=${3}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild_bulk-overwrite {
+local application_id=${1}
+local guild_id=${2}
+local json=${3}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT -d "$json" --silent | ${jq_binary} '.') 
+echo $output 
+}
+function applications_guild_permissions {
+local application_id=${1}
+local guild_id=${2}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands/permissions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild_permissions {
+local application_id=${1}
+local guild_id=${2}
+local command_id=${3}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands/${command_id}/permissions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+echo $output 
+}
+function application_guild_permissions_edit {
+local application_id=${1}
+local guild_id=${2}
+local command_id=${3}
+local json=${4}
+output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands/${command_id}/permissions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT -d "$json" --silent | ${jq_binary} '.') 
+echo $output 
+}
+
 
 function latency_api {
 local output=$(curl -o /dev/null -s -w 'Total: %{time_total}s\n'  https://www.discord.com/api | awk '{print $2}' | cut -c 3-5)
