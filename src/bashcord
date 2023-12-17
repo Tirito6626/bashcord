@@ -5,7 +5,7 @@ jq_binary="jq"
 nodejs_binary="node"
 npm_binary="npm"
 autoupdate=false
-
+f=true
 
 
 
@@ -21,7 +21,7 @@ function find_func {
 }
 function list_func {
   if [[ "$1" = "" ]]; then
-  echo "enter category. guild, channel, user, bot, builders"
+  echo "enter category. guild, channel, user, bot, application, builders"
   elif [[ "$1" = "builders" ]]; then
   local output=$(cat ${BASH_SOURCE} | sed -n '/^function add/,/^}/p' | grep 'function' | grep -v 'function [o][n]' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
   echo $output 
@@ -98,7 +98,7 @@ function addOption {
 }
 
 function clientBuilder {
-client_json="{}"
+client_json='{}'
 client_json=$( echo $client_json | ${jq_binary} '. += { "properties": { "os": "linux", "browser": "bashcord", "device": "bashcord" }  }')
 }
 ##############################################################
@@ -273,55 +273,62 @@ function addField {
 function channel {
 channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_modify {
 local channel_id=${1}
 local json=${2}
 local output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X PATCH --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_delete {
 local channel_id=${1}
 local output=$(curl "https://discord.com/api/v10/channels/${channel_id}" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_messages {
 local channel_id=${1}
 local json=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data $json -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message_send {
 local channel_id=${1}
 local json=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages" -H "Authorization: Bot ${token}" --data "$2" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_crossport-message_send {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/crosspost" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_reaction_add {
@@ -329,8 +336,9 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_reaction_remove {
@@ -338,8 +346,9 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_reaction_user_remove {
@@ -348,8 +357,9 @@ local message_id=${2}
 local emoji=${3}
 local user_id=${4}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_reactions {
@@ -360,16 +370,18 @@ local after=${4}
 local limit=${5}
 local json='{ "after": "'"$after"'", "limit": "'$limit'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}" -H "Authorization: Bot ${token}" -d "'$json'"-H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_reactions_remove {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_reactions_emoji_remove {
@@ -377,8 +389,9 @@ local channel_id=${1}
 local message_id=${2}
 local emoji=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/reactions/${emoji}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message_edit {
@@ -386,16 +399,18 @@ local channel_id=${1}
 local json=${2}
 local message_id=${3}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message_delete {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}" -H "Authorization: Bot ${token}"  -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message_bulk-delete {
@@ -403,8 +418,9 @@ local channel_id=${1}
 local messages_array=${2}
 local json='{"messages": '"$messages_array"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/bulk-delete" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_permissions_edit {
@@ -415,23 +431,26 @@ local deny=${4}
 local type=${5}
 local json='{"allow": "'"$allow"'", "deny"; "'"$deny"'", "type": '"$type"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/permissions/${overwrite_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_permissions_delete {
 local channel_id=${1}
 local overwrite_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/permissions/${overwrite_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_invites {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_invites_create {
@@ -445,8 +464,9 @@ local target_user_id=${7}
 local target_application_id=${8}
 local json='{"max_age": '"$max_age"', "max_uses"; '"$max_uses"', "temporary": '"$temporary"', "unique": '"$unique"', "target_type": '"$target_type"', "target_user_id": '"$target_user_id"', "target_application_id":'"$target_application_id"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_follow {
@@ -454,38 +474,43 @@ local channel_id=${1}
 local webhook_channel_id=${2}
 local json='{"webhook_channel_id": '"$webhook_channel_id"' }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/followers" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_typing {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/typing" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_pins {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/typing" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message_pin {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/pins/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_message_unpin {
 local channel_id=${1}
 local message_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/pins/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function group-dm_recipient_add {
@@ -495,16 +520,18 @@ local access_token=${3}
 local nick=${4}
 local json='{ "access_token": "'"$access_token"'", "nick": "'"$nick"'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/recipients/${user_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function group-dm_recipient_remove {
 local channel_id=${1}
 local user_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/recipients/${user_id}" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_message_start {
@@ -515,8 +542,9 @@ local auto_archive_duration=${4}
 local rate_limit_per_user=${5}
 local json='{ "name": "'"$name"'", "auto_archive_duration": "'"$auto_archive_duration"'", "rate_limit_per_user": "'"$rate_limit_per_user"'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/messages/${message_id}/threads" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_start {
@@ -528,38 +556,43 @@ local invitable=${5}
 local rate_limit_per_user=${6}
 local json='{ "name": "'"$name"'", "auto_archive_duration": "'"$auto_archive_duration"'", "type": '"${type}"', "invitable": '"${invitable}"', "rate_limit_per_user": "'"$rate_limit_per_user"'" }'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_join {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_leave {
 local channel_id=${1}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_member_add {
 local channel_id=${1}
 local user_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_member_remove {
 local channel_id=${1}
 local user_id=${2}
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_member_get {
@@ -568,8 +601,9 @@ local user_id=${2}
 local with_member=${3}
 local json='{"with_member":'"$with_member"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members/${user_id}" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_thread_members_get {
@@ -579,8 +613,9 @@ local after=${3}
 local limit=${4}
 local json='{"with_member":'"$with_member"',"after":'"$after"',"limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/thread-members" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_threads_archived_public {
@@ -589,8 +624,9 @@ local before=${2}
 local limit=${3}
 local json='{"before":"'"$before"'","limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads/archived/public" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_threads_archived_private {
@@ -599,8 +635,9 @@ local before=${2}
 local limit=${3}
 local json='{"before":"'"$before"'","limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/threads/archived/private" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function channel_threads_archived_private_joined {
@@ -609,21 +646,24 @@ local before=${2}
 local limit=${3}
 local json='{"before":"'"$before"'","limit":'"$limit"'}'
 output=$(curl "https://discord.com/api/v10/channels/${channel_id}/users/@me/threads/archived/private" -data -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 
 
 function bot { 
 output=$(curl "https://discord.com/api/v10/applications/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent) 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function bot_user {
 output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 ##############################################################
@@ -632,8 +672,9 @@ local username=${1}
 local avatar=${2}
 local json='{ "username": "'"$username"'", "avatar":"'"$avatar"'"}'
 output=$(curl "https://discord.com/api/v10/users/@me" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 ##############################################################
@@ -644,8 +685,9 @@ local platform_username=${3}
 local metadata=${4}
 local json='{ "platform_name": "'"$platform_name"'", "platform_username":"'"$platform_username"'", "metadata": ['"$metadata"']}'
 output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 ##############################################################
@@ -656,23 +698,26 @@ local platform_username=${3}
 local metadata=${4}
 local json='{ "platform_name": "'"$platform_name"'", "platform_username":"'"$platform_username"'", "metadata": ['"$metadata"']}'
 output=$(curl "https://discord.com/api/v10/users/@me/applications/${application_id}/role-connection" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 ##############################################################
 function bot_guilds {
 output=$(curl "https://discord.com/api/v10/users/@me/guilds" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 ##############################################################
 function bot_member {
   local guild_id=${2}
 output=$(curl "https://discord.com/api/v10/users/@me/guilds/${guild_id}/member" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 ##############################################################
@@ -680,8 +725,9 @@ function bot_dm_create {
   local user_id=${2}
   local json='"{"recipient_id":"'"$user_id"'"}'
 output=$(curl "https://discord.com/api/v10/users/@me/channels" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 
 }
 
@@ -689,43 +735,49 @@ echo $output
 function guild {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_delete {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_channels {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/channels" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_threads_active {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/threads/active" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_member {
 local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 function guild_members {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_member_role_add {
@@ -733,39 +785,44 @@ local guild_id=${1}
 user_id=${2}
 role_id=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 function guild_member_role_remove {
 local guild_id=${1}
 user_id=${2}
 role_id=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_member_kick {
 local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/members/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 function guild_member_ban {
 local guild_id=${1}
 user_id=${2}
 delete_message_days=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json"  --data '{"delete_message_days":'"${delete_message_days}"'}' -X PUT --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 function guild_member_unban {
 local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_bans_get {
@@ -775,22 +832,25 @@ local before=${3}
 local after=${4}
 local json='{ "limit": '"$limit"', "before": "'"$before"'", "after": "'"$after"'"}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 function guild_ban_get {
 local guild_id=${1}
 user_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/bans/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_roles {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 function guild_roles_create {
 local guild_id=${1}
@@ -800,9 +860,9 @@ color=${4}
 hoist=${5}
 mentionable=${6}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{ "name": "'"${name}"'", "permissions": "'"${permissions}"'", "color": '"${color}"', "hoist": '"${hoist}"', "icon": null, "unicode_emoji": null, "mentionable": '"${mentionable}"' }' -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
-echo $json
+fi
 }
 ##############################################################
 function guild_roles_positions_modify {
@@ -810,8 +870,9 @@ local guild_id=${1}
 role_id=${2}
 position=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"id":'"$role_id"',"position":'"$position"'}' -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_roles_modify {
@@ -824,24 +885,27 @@ hoist=${6}
 mentionable=${7}
 json='{ "name":'"${name}"', "permissions":'"${permissions}"', "color":'"${color}"', "hoist":'"${hoist}"', "icon":null, "unicode_emoji":null,"mentionable":'"${mentionable}"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data $json -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_roles_delete {
 local guild_id=${1}
 role_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/roles/${role_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_mfa_modify {
 local guild_id=${1}
 mfa_lvl=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/mfa" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"level": '$mfa_lvl'}' -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_prune_count {
@@ -849,8 +913,9 @@ local guild_id=${1}
 days=${2}
 include_roles=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days', "include_roles",'"$include_roles"'}' -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_prune_count {
@@ -860,81 +925,92 @@ compute_prune_count=${3}
 include_roles=${4}
 reason=${5}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/prune" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"days": '$days',"compute_prune_count":'"$compute_prune_count"', "include_roles",'"$include_roles"',"reason":'"$reason"'}' -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_voice_regions {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/regions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_invites {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/invites" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_integrations {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_integrations_delete {
 local guild_id=${1}
 intergration_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/integrations/${intergration_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_widgets_settings {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_widgets_settings_modify {
 local guild_id=${1}
 widget_json=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -H "Content-Type: application/json" --data "$widget_json" -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_widgets {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.json" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_widgets_image {
 local guild_id=${1}
 type=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/widget.png" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"type":'"$type"'}' -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_vanity-url {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/vanity-url" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_welcome-screen {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_welcome-screen_modify {
@@ -943,15 +1019,17 @@ enabled=${2}
 welcome_channels=${3}
 description=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/welcome-screen" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"enabled":'"$enabled"',"welcome_channels":'"$welcome_channels"',"description":'"$description"'}' -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_onboarding {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_onboarding_modify {
@@ -961,8 +1039,9 @@ default_channel_ids=${3}
 enabled=${4}
 mode=${5}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/onboarding" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"prompts":'"$prompts"',"default_channel_ids":'"$default_channel_ids"',"enabled":'"$enabled"',"mode":'"$mode"'}' -X PUT --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_voice-states_client_modify {
@@ -971,8 +1050,9 @@ channel_id=${2}
 suppress=${3}
 request_to_speak_timestamp=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/@me" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_voice-states_modify {
@@ -981,15 +1061,17 @@ user_id=${2}
 channel_id=${3}
 suppress=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/voice-states/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --data '{"channel_id":'"$channel_id"',"suppress":'"$suppress"',"request_to_speak_timestamp":'"$request_to_speak_timestamp"'}' -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_templates {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_templates_create {
@@ -997,16 +1079,18 @@ local guild_id=${1}
 name=${2}
 description=${3}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_templates_sync {
 local guild_id=${1}
 local template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_templates_modify {
@@ -1015,31 +1099,35 @@ local template_code=${2}
 local name=${3}
 local description=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"description":'"$description"'}' -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_templates_delete {
 local guild_id=${1}
 local template_code=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/templates" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_emojis {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_emoji {
 local guild_id=${1}
 local emoji_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_emoji_create {
@@ -1049,8 +1137,9 @@ local image=${3}
 local roles=${4}
 local json='{"name":"'"$name"'", "image":"'"$image"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild_emoji_modify {
@@ -1060,7 +1149,9 @@ local name=${3}
 local roles=${4}
 local json='{"name":"'"$name"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
-echo $outputecho $output 
+if $f; then
+if $f; thenecho $output
+ecfiho $output fi
 
 }
 ##############################################################
@@ -1068,20 +1159,26 @@ function guild_emoji_delete {
 local guild_id=${1}
 local emoji_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis/${emoji_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+ fi
  }
 ##############################################################
 function guild_stickers {
 local guild_id=${1}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+ fi
  }
 ##############################################################
 function guild_sticker {
 local guild_id=${1}
 sticker_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+ fi
  }
 ##############################################################
 function guild_sticker_create {
@@ -1091,7 +1188,9 @@ description=${3}
 tags=${4}
 file=${5}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+ fi
  }
 ##############################################################
 function guild_sticker_modify {
@@ -1100,21 +1199,26 @@ name=${2}
 description=${3}
 tags=${4}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+ fi
  }
 ##############################################################
 function guild_sticker_delete {
 local guild_id=${1}
 sticker_id=${2}
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+ fi
  }
 
 function guild-template {
 template_code=${1}
 output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function guild-template_guild_create {
@@ -1122,43 +1226,50 @@ template_code=${1}
 name=${2}
 icon=${3}
 output=$(curl "https://discord.com/api/v10/guilds/templates/${template_code}" -H "Authorization: Bot ${token}" --data '{"name":'"$name"',"icon":'"$icon"'}' -H "Content-Type: application/json" -X POST --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 
 
 function invite {
 invite_code=${1}
 output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 ##############################################################
 function invite_delete {
 invite_code=${1}
 output=$(curl "https://discord.com/api/v10/invites/${invite_code}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 
 function sticker {
 sticker_id=${1}
 output=$(curl "https://discord.com/api/v10/stickers/${sticker_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 
 function sticker-packs {
 output=$(curl "https://discord.com/api/v10/sticker-packs" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
-
+fi
 }
 
 
 function user {
 local user_id=${1}
 output=$(curl "https://discord.com/api/v10/users/${user_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 
 function applications_global {
@@ -1166,38 +1277,50 @@ function applications_global {
   local with_localizations=${2} || with_localizations=false
   local json='{ "with_localizations": '"$with_locatlizations"' }'
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d "$json" | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_global {
 local application_id=${1}
 local command_id=${2}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_global_create {
 local application_id=${1}
 local json=${2}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent -d "$json" | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_global_edit {
 local application_id=${1}
 local command_id=${2}
 local json=${3}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent -d "$json" | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_global_delete {
 local application_id=${1}
 local command_id=${2}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_global_bulk-overwrite {
 local application_id=${1}
 local json=${2}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT -d "$json" --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function applications_guild {
 local application_id=${1}
@@ -1205,21 +1328,27 @@ local guild_id=${2}
 local with_localizations=${3} || with_localizations=false
 local json='{ "with_localizations": '"$with_locatlizations"' }'
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent -d "$json" | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild_create {
 local application_id=${1}
 local guild_id=${2}
 local json=${3}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X POST --silent -d "$json" | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild {
 local application_id=${1}
 local guild_id=${2}
 local command_id=${3}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild_edit {
 local application_id=${1}
@@ -1227,34 +1356,44 @@ local guild_id=${2}
 local command_id=${3}
 local json=${4}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PATCH --silent -d $json | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild_delete {
 local application_id=${1}
 local guild_id=${2}
 local command_id=${3}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}/guilds/${guild_id}/commands/${command_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X DELETE --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild_bulk-overwrite {
 local application_id=${1}
 local guild_id=${2}
 local json=${3}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT -d "$json" --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function applications_guild_permissions {
 local application_id=${1}
 local guild_id=${2}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands/permissions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild_permissions {
 local application_id=${1}
 local guild_id=${2}
 local command_id=${3}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands/${command_id}/permissions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X GET --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 function application_guild_permissions_edit {
 local application_id=${1}
@@ -1262,13 +1401,17 @@ local guild_id=${2}
 local command_id=${3}
 local json=${4}
 output=$(curl "https://discord.com/api/v10/applications/${application_id}}/guilds/${guild_id}/commands/${command_id}/permissions" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" -X PUT -d "$json" --silent | ${jq_binary} '.') 
+if $f; then
 echo $output 
+fi
 }
 
 
 function latency_api {
 local output=$(curl -o /dev/null -s -w 'Total: %{time_total}s\n'  https://www.discord.com/api | awk '{print $2}' | cut -c 3-5)
+if $f; then
 echo $output
+fi
 }
 function latency_websocket {
 echo $latency
@@ -1890,8 +2033,6 @@ function startClient {
 if [[ "$client_json" = "" ]]; then
 echo "Client is not ready. Use ClientBuilder for intialization"
 exit
-else
-echo $client_json > ${LOCATION}config.json
 fi
 if [[ "$autoupdate" = "true" ]]; then  
 path="${LOCATION}modules/node_modules"
@@ -1915,7 +2056,7 @@ fi
 #bash /tmp/interval.sh
 # while true; do
 #(tmux capture-pane -J -p -S -2 | uniq) 
-${nodejs_binary} ${LOCATION}modules/websocket.js | while read -r line; do 
+${nodejs_binary} ${LOCATION}modules/websocket.js "$client_json" | while read -r line; do 
 if [[ "$line" != "" ]]; then
 output=$(echo $line | ${jq_binary} -r '.t')
 output2=$(echo $line | ${jq_binary} -r '.op')

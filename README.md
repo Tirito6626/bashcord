@@ -48,8 +48,13 @@ jq_binary="/path/to/jq"
 nodejs_binary="/path/to/node"
 npm_binary="/path/to/npm"
 ```
-Also, if you want to disable autoupdate on startup, change this:
+Also, if you want to disable autoupdate on startup, set this:
 ```bash
 autoupdate=false
 ```
+If you want to disable output from API calls, set this:
+```bash
+f=false
+```
+
 Also check [bashcord discord server](https://dsc.gg/bashcord) for future updates
