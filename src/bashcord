@@ -1150,8 +1150,8 @@ local roles=${4}
 local json='{"name":"'"$name"'", "roles": '"$roles"'}'
 output=$(curl "https://discord.com/api/v10/guilds/${guild_id}/emojis" -H "Authorization: Bot ${token}" --data "$json" -H "Content-Type: application/json" -X PATCH --silent | ${jq_binary} '.') 
 if $f; then
-if $f; thenecho $output
-ecfiho $output fi
+echo $output
+fi
 
 }
 ##############################################################
