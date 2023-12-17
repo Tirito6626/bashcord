@@ -12,6 +12,7 @@
 [jq](https://jqlang.github.io/jq/download/)
 [nodejs](https://github.com/nodesource/distributions) 
 bash
+[curl](https://curl.se/download.html)
 # Installation
 To install code, run this:
 
