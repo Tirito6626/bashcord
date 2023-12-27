@@ -11,17 +11,16 @@ ws.on('open', () => {
     ws.send(JSON.stringify(payload));
     console.log(JSON.stringify(payload));
 });
-
+ws.on('pong', function(message) {
+    lastSeq = seq;
+    let endTime = new Date().getTime();
+    delay = endTime - startTime;
+    })
 ws.on('message', message => {
     startTime = new Date().getTime();
     const { d: data, t: event, op, s: seq } = JSON.parse(message);
     if ( op !== 11 ) {
     ws.ping('ping');
-    ws.on('pong', function(message) {
-    lastSeq = seq;
-    let endTime = new Date().getTime();
-    delay = endTime - startTime;
-    })
 }
 console.log(JSON.stringify({ d: data, t: event, op: op, s: seq, p: delay }))
     switch (op) {

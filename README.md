@@ -7,7 +7,7 @@
 - Easy to use
 - Use with any linux package
 - Easy to install
-- 2000 lines of bash, few lines of JS
+- 2500+ lines of bash, few lines of JS
 # Requirements
 - [jq](https://jqlang.github.io/jq/download/)
 - [nodejs](https://github.com/nodesource/distributions) 
@@ -26,11 +26,11 @@ Now, lets create `main.sh` file:
 source /path/to/bashcord/src/bashcord
 token="YOUR TOKEN HERE"
 clientBuilder;
- addToken $token
- addIntents <intents, e.g. 33280>
- 
+ addToken $token # adding token  
+ addIntents <intents, e.g. 33280> # adding required intents so our bot receives all important messages
+  
 presenceBuilder;
- addStatus <status, e.g. "online">
+ addStatus <status, e.g. "online"> # let us know that bot is online
 
  #lets create startup command!
  function startup {
@@ -43,7 +43,7 @@ onReady startup # letting bashcord now which function what function should be ex
 startClient # start client 
 ```
 
-Note: if you want to run bashcord on Pterodactyl, you should change these lines in `/src/bashcord`
+Note: if you want to run bashcord on Pterodactyl or on any environment, that doesn't have required tools, you should change these lines in `/src/bashcord`
 ```bash
 jq_binary="/path/to/jq"
 nodejs_binary="/path/to/node"

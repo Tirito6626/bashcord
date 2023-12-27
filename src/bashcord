@@ -1406,6 +1406,74 @@ echo $output
 fi
 }
 
+function interaction_reply {
+  local interacttion_id=${1}
+  local interaction_token=${2}
+  local json=${3}
+  curl  "https://discord.com/api/v10/interactions/${interaction_id}/${interaction_token}/callback" -H "Authorization: Bot ${token}"  --data '"$json"' -H "Content-Type: application/json" -X POST
+}
+function interaction_original {
+  local application_id=${1}
+  local interaction_token=${2}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}/messages/@original" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --silent -X GET | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
+function interaction_original_edit {
+  local application_id=${1}
+  local interaction_token=${2}
+  local json=${3}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}/messages/@original" -H "Authorization: Bot ${token}" -d "$json" -H "Content-Type: application/json" --silent -X PATCH | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
+function interaction_original_delete {
+  local application_id=${1}
+  local interaction_token=${2}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}/messages/@original" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --silent -X DELETE | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
+function followup_send {
+  local application_id=${1}
+  local interaction_token=${2}
+  local json=${3}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}" -H "Authorization: Bot ${token}" -d "$json" -H "Content-Type: application/json" --silent -X POST | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
+function followup {
+  local application_id=${1}
+  local interaction_token=${2}
+  local message_id=${3}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}/messages/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --silent -X GET | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
+function followup_edit {
+  local application_id=${1}
+  local interaction_token=${2}
+  local message_id=${3}
+  local json=${4}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}/messages/${message_id}" -H "Authorization: Bot ${token}" -d "$json" -H "Content-Type: application/json" --silent -X PATCH | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
+function followup_delete {
+  local application_id=${1}
+  local interaction_token=${2}
+  local message_id=${3}
+output=$(curl "https://discord.com/api/v10/webhooks/${application_id}/${interaction_token}/messages/${message_id}" -H "Authorization: Bot ${token}" -H "Content-Type: application/json" --silent -X DELETE | ${jq_binary} '.')
+if $f; then
+echo $output
+fi
+}
 
 function latency_api {
 local output=$(curl -o /dev/null -s -w 'Total: %{time_total}s\n'  https://www.discord.com/api | awk '{print $2}' | cut -c 3-5)
@@ -2056,7 +2124,7 @@ fi
 #bash /tmp/interval.sh
 # while true; do
 #(tmux capture-pane -J -p -S -2 | uniq) 
-${nodejs_binary} ${LOCATION}modules/websocket.js "$client_json" | while read -r line; do 
+${nodejs_binary}  --optimize_for_size --max-old-space-size=10 --max-semi-space-size=1 ${LOCATION}modules/websocket.js "$client_json" | while read -r line; do 
 if [[ "$line" != "" ]]; then
 output=$(echo $line | ${jq_binary} -r '.t')
 output2=$(echo $line | ${jq_binary} -r '.op')
