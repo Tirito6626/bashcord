@@ -1407,7 +1407,7 @@ fi
 }
 
 function interaction_reply {
-  local interacttion_id=${1}
+  local interaction_id=${1}
   local interaction_token=${2}
   local json=${3}
   curl  "https://discord.com/api/v10/interactions/${interaction_id}/${interaction_token}/callback" -H "Authorization: Bot ${token}"  --data '"$json"' -H "Content-Type: application/json" -X POST
