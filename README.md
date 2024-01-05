@@ -16,7 +16,7 @@
 # Installation
 To install code, run this:
 
-```php
+```
 git clone https://github.com/Tirito6626/bashcord.git
 ```
 
