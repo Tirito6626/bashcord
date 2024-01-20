@@ -6,6 +6,7 @@ function Connect() {
 	let heartbeatInterval;
 	let delay;
 	let lastSeq;
+    let seq;
 	ws.on('open', () => {
 		const payload = { op: 2, d: json };
 		ws.send(JSON.stringify(payload));

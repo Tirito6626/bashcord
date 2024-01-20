@@ -1,5 +1,9 @@
 #!/bin/bash
-
+#
+# Bashcord: Simple bash-written Discord API wrapper 
+# Credits: Tirito6626, 2024
+#
+#
 # change these variables before start
 jq_binary="jq"
 nodejs_binary="node"
@@ -1547,6 +1551,7 @@ e62=$just
 e63=$just
 e64=$just
 e65=$just
+
 function onReady {
   eval "${1}"
   }

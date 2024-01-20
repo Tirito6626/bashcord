@@ -9,10 +9,10 @@
 - Easy to install
 - 2500+ lines of bash, few lines of JS
 # Requirements
-- [jq](https://jqlang.github.io/jq/download/)
-- [nodejs](https://github.com/nodesource/distributions) 
-- [bash](https://www.gnu.org/software/bash/)
-- [curl](https://curl.se/download.html)
+- [jq](https://jqlang.github.io/jq/download/) 1.5+
+- [nodejs](https://github.com/nodesource/distributions) 16+ 
+- [bash](https://www.gnu.org/software/bash/) 3.4+ 
+- [curl](https://curl.se/download.html) 
 # Installation
 To install code, run this:
 
