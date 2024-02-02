@@ -37,6 +37,20 @@ function list_func {
 
 re=false
 #builders
+function actionRowBuilder {
+  message_json=$( echo -e $message_json | ${jq_binary} '. += { "components": [{ "type": 1, "components": [] }] }')
+}
+##############################################################
+function addButton { 
+  style=${1}
+  label=${2}
+  emoji=${3}
+  custom_id=${4}
+  url=${5}
+  disabled=${6}
+  message_json=$(echo "$message_json" | ${jq_binary} -R '.' | ${jq_binary} -s '.' | ${jq_binary} -r 'join("")' | ${jq_binary} -r '.components[].components |= . + [{ "type": 2,"style": '"${style:=1}"', "label": "'"${label}"'", "custom_id": "'"${custom_id}"'", "url": "'"${url}"'", "disabled": '"${disabled:=false}"' }]')
+}
+##############################################################
 function applicationCommandBuilder {
  slash_json="{}"
 }
@@ -46,7 +60,7 @@ function addCommandID {
 }
 ##############################################################
 function addCommandType {
-  slash_json=$(echo $slash_json | ${jq_binary} '. += { "type": '"${1}"' }')
+  slash_json=$(echo $slash_json | ${jq_binary} '. += { "type": '"${1:=1}"' }')
 }
 ##############################################################
 function addCommandApplicationID {
