@@ -1,4 +1,4 @@
-![logo](https://repo.tirito.de/assets/images/bashcord.png)
+![logo](https://repo.tirito.de/assets/images/bashcord_banner.jpg)
 # bashcord
  Unofficial discord API wrapper written in Bash
 
