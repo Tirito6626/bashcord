@@ -32,7 +32,7 @@ function interaction {
 	is_empty "${required_args[@]}" && error_trace "$@" && return 1
 
 	if (( use_response )); then
-        fiction.FictionResponseHeaders[content-type]="application/json"
+        FictionResponseHeaders[content-type]="application/json"
         fiction.respond 200 "$data"
     else 
         api_request "$route" "$method" ${data:+--data "$data"} -A InteractionCallback
