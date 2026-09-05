@@ -6,7 +6,7 @@ function interaction {
 		reply) 
 		    route="/interactions/${Interaction[id]}/$token/callback" method=POST
 		    required_args=("data")
-		    [[ "$data" ]] && data="{ \"type\": 4, \"data\": $data \}" ;;
+		    [[ "$data" ]] && data="{ \"type\": 4, \"data\": $data }" ;;
         defer)
 			route="/interactions/${Interaction[id]}/$token/callback" method=POST data='{ "type": 5 }' ;;
 		edit)
