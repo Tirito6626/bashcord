@@ -236,7 +236,7 @@ function api_request {
 }
 function is_empty {
 	for arg in "$@"; do
-		[[ ! -v "$arg" ]] && __error="'--${arg}' option missing" && return 1
+		[[ -z "${!arg}" ]] && __error="'--${arg}' option missing" && return 0
 	done
-	return 0
+	return 1
 }
