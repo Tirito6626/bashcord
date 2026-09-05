@@ -1,0 +1,401 @@
+#!/bin/bash
+#
+# Bashcord: Simple bash-written Discord API wrapper 
+# Credits: Tirito6626, 2023-2025
+# License: Apache License 2.0
+#
+# v2.0.0:
+# FULL recode 
+# Own websocket module which allows to implement a lot of new stuff 
+# Decreased memory usage from 15mb (+ memory leak) to 7.5mb (excluding data objects and cache)
+# All functions and most builders are moved into separated files and are loaded using function- and eventBuilder automatically
+# bashcord now comes with pre-installed dependencies in /src/deps folder
+# All activity-related builder functions now have prefix `Activity`
+# addType ... -> addActivityType ...
+# Full select menu, button and application command implementation
+# New "interfaces" for each data type, e.g.:
+# addActivityType 3 -> addActivityType "watching"
+# addIntents 33280 -> addIntents "Guilds" "GuildMembers" "GuildMessages" "MessageContent"
+# interaction_reply "channel_message" ...
+# New events system based on bashup.events:
+# onMessageCreate helloWorld -> event on "messageCreate" helloWorld
+# New data storage method: All event data is now stored inside ${data[]} array
+# $data_onMessageCreate -> ${data[onMessageCreate]}
+# Added support for new Discord events
+# New error parsing (only available for builders ATM), e.g.:
+# addSelectMenuOption: No label provided
+# > addSelectMenuOption "${1}" "${2}" # marked as red "${3}" "${4}" "${5}" "${6}"
+# Warning: addStatus: Value expected
+# New variables which are automatically set on each event:
+# $channel_id: event's channel ID
+# $guild_id: event's guild ID
+# $author: event's author object
+# $author_id: event's author ID
+# interaction_reply rework: 
+# interaction_reply <type> <interaction_id> <interaction_token> <message_object>
+# 
+# TO-DO:
+# docs
+# complete message builder
+# message polls
+# User-defined variables
+#set -x
+LOCATION=$(echo ${BASH_SOURCE} | sed 's/bashcord$//g')
+jq_binary="${LOCATION}/../deps/jq"
+websocat_binary="${LOCATION}/../deps/websocat"
+events_path="${LOCATION}/../modules/bashup.events"
+respondOnBots=false
+respondOnSelfActions=false
+verbose=true
+f=true
+
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM # make sure all child processes are killed on exit
+
+# declaring all data arrays
+declare -A intents=(
+[Guilds]=1
+[GuildMembers]=2
+[GuildModeration]=4
+[GuildExpressions]=8
+[GuildIntegrations]=16
+[GuildWebhooks]=32
+[GuildInvites]=64
+[GuildVoiceStates]=128
+[GuildPresences]=256
+[GuildMessages]=512
+[GuildMessageReactions]=1024
+[DirectMessages]=2048
+[DirectMessageReactions]=4096
+[DirectMessageTyping]=16384
+[MessageContent]=32768
+[GuildScheduledEvents]=65536
+[AutoModerationConfiguration]=1048576
+[AutoModerationExecution]=2097152
+[GuildMessagePolls]=16777216
+[DirectMessagePolls]=33554432
+)
+declare -A application_install_types=(
+[guild_install]=0
+[user_install]=1
+)
+declare -A channel_types=(
+[guild_text]=0
+[dm]=1
+[guild_voice]=2
+[group_dm]=3
+[guild_category]=4
+[guild_announcement]=5
+[announcement_thread]=10
+[public_thread]=11
+[private_thread]=12
+[guild_stage_voice]=13
+[guild_directory]=14
+[guild_forum]=15
+[guild_media]=16
+)
+declare -A activity_types=(
+[playing]=0
+[streaming]=1
+[listening]=2
+[watching]=3
+[custom]=4
+[competing]=5
+)
+declare -A button_styles=(
+[primary]=1
+[secondary]=2
+[success]=3
+[danger]=4
+[link]=5
+[premium]=6
+)
+declare -A application_types=(
+[chat_input]=1
+[slash]=1
+[user]=2
+[message]=3
+[primary_entry_point]=4
+)
+declare -A application_option_types=(
+[sub_command]=1
+[sub_command_group]=2
+[string]=3
+[integer]=4
+[boolean]=5
+[user]=6
+[channel]=7
+[role]=8
+[mentionable]=9
+[number]=10
+[attachment]=11
+)
+declare -A select_menu_types=(
+[string]=3
+[user]=5
+[role]=6
+[mentionable]=7
+[channel]=8
+)
+
+declare -r ver='2.0.0'
+yellow='\e[33m'
+red='\e[31m'
+cyan='\e[1;36m'
+nc='\e[0m'
+# loading events module
+source "$events_path"
+function functionLoader {
+"$verbose" && echo "Loading functions..."
+  for folder in application bot channel guild guild-template interaction invite sticker user audit-log
+  do 
+  for function in $(find "${LOCATION}functions/${folder}/" -maxdepth 1 -type f  )
+  do
+  source ${function}
+  function2=${function##*/}
+  export -f "${function2//\.sh/}"
+  done
+  done
+}
+
+function builderLoader {
+  "$verbose" && echo "Loading builders..."
+  for file in client.sh activity.sh message.sh embed.sh action_row.sh application_command.sh
+  do 
+  [ ! -f "${LOCATION}builders/${file}" ] && error "${file} couldn't be found (${LOCATION}builders/${file})"
+  source "${LOCATION}builders/${file}"
+  done 
+}
+
+function warn {
+  echo -e "${yellow}Warning:${nc} $@" 1>&2;
+}
+function error {
+  echo -e "${red}Error:${nc} $@" 1>&2;
+  exit 1
+}
+
+# useful function
+function find_func {
+ local output=$(cat ${BASH_SOURCE} | sed -n '/^function '"${1}"'/,/^}/p' | grep 'local' | awk '{ $1=""; print }') || output="Nothing found :("
+ echo $output
+}
+function list_func {
+  if [[ "$1" = "" ]]; then
+  echo "enter category. guild, channel, user, bot, application, builders"
+  elif [[ "$1" = "builders" ]]; then
+  local output=$(cat ${BASH_SOURCE} | sed -n '/^function add/,/^}/p' | grep 'function' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
+  echo $output 
+  else
+  local output=$(cat ${BASH_SOURCE} | sed -n '/^function '"${1}"'/,/^}/p' | grep 'function' | grep -v 'find_func' | grep -v 'startClient' | grep -v 'list_func' | awk '{print $2}')
+  echo $output 
+  fi
+}
+
+# websocket and rest functions
+function api_request {
+  local argscount=0
+  local url="$1"
+  local method="$2"
+  local outkeys=''
+  shift 2
+  for arg in "$@"; do 
+    ((++argscount))
+    IFS=':' read key value <<< "$arg"
+    [[ "$argcount" > 1 ]] && outkeys+="&${key}=${value}" || outkeys+="?${key}=${value}"
+  done
+  curl "${url}${outkeys}" \
+  -H "Authorization: Bot ${token}" \
+  -H "Content-Type: application/json" \
+  -X ${method:=GET} \
+  --silent 
+}
+
+function process_uptime {
+  local T=$(($(date +%s)-$(stat -c %Y /proc/$pid)))
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  local out=""
+  (( $D > 0 )) && { (( $D > 1 )) && out+="$D days " || out+="$D day "; }
+  (( $H > 0 )) && { (( $H > 1 )) && out+="$H hours " || out+="$H hour "; }
+  (( $M > 0 )) && { (( $M > 1 )) && out+="$M minutes " || out+="$M minute "; }
+  (( $D > 0 || $H > 0 || $M > 0 && $S > 0 )) && out+='and '
+  (( $S > 0 )) && { (( $S > 1 )) && out+="$S seconds " || out+="$S second "; }
+  echo "${out::-1}"
+}
+function latency_api {
+local output=$(curl -o /dev/null -s -w 'Total: %{time_total}s\n'  https://www.discord.com/api | awk '{print $2}' | cut -c 3-5)
+if $f; then
+echo $output
+fi
+}
+function latency_websocket {
+echo "$latency"
+}
+
+heartbeat() {
+sleep 3
+while true; do 
+  echo '{ "op": 1, "d": null }' >&"${WEBSOCKET[1]}"
+  if (( $? > 0 )); then
+    kill $WEBSOCKET_PID $(pgrep -P $WEBSOCKET_PID)
+  fi
+  echo "$(date +%s%3N)"
+  sleep 42
+done 
+}
+
+# start of the client
+functionLoader 
+builderLoader
+declare -A data=()
+IFS=$'\n'
+
+initialized=false
+function startClient {
+if [[ "$client_json" = "" ]]; then
+echo "Client is not ready. Use ClientBuilder for intialization"
+exit
+fi
+client=$(bot)
+ echo "Starting bashcord v${ver} as $(echo $output3 | ${jq_binary} -r '.bot.username + "#" + .bot.discriminator')"
+event fire "ready" 
+payload=$(cat <<- EOF
+{ "op": 2, "d": $(echo "$client_json" | ${jq_binary} -c '.') }
+EOF
+)
+
+ "${respondOnBots:=false}" || respondOnBots=null 
+while true; do
+  start=true
+  [ ! -z $WEBSOCKET_PID ] && kill -0 $WEBSOCKET_PID && kill -s TERM $WEBSOCKET_PID # checks if old process is still running
+  coproc WEBSOCKET { ${websocat_binary} --no-close "wss://gateway.discord.gg/?v=10&encoding=json"; } # creates new co-process on background
+  sleep 1
+  echo "$payload" >&"${WEBSOCKET[1]}" # authorization
+  sleep 3
+  [ -z "$heartbeat_PID" ] && coproc heartbeat { heartbeat; } # check if heartbeat function is running, if not, start it
+  while read line <&"${WEBSOCKET[0]}"; do # read from websocket
+    if [ ! -z "$line" ]; then
+      local output=$(echo "$line" | ${jq_binary} -rc '.t')
+      local output2=$(echo "$line" | ${jq_binary} -rc '.op')
+      local output3=$(echo "$line" | ${jq_binary} -rc '.d')
+# uncomment for debugging only
+      echo -e "Event name: $output"
+      echo -e "OP code: $output2"
+ # echo -e "Data: $output3"
+      case $output2 in
+      11)
+        read -r time1 <&"${heartbeat[0]}"
+        latency=$(($(date +%s%3N)-time1))
+        echo "$latency"
+      ;;
+      7) 
+# OP code 7 means client should either resume (I tried implementing it, without success) or reconnect
+        break # restart loop
+      ;;
+      9)
+        echo "Session is invalid. Try to check your code on errors"
+        echo "If your code is correct and you see this, write about that in bashcord discord server"
+        break 2
+      ;;
+      0)
+# data objects
+        channel_id=$(echo "$output3"  | ${jq_binary} -r '.channel_id')
+        guild_id=$(echo "$output3" | ${jq_binary} -r '.guild_id')
+        author=$(echo $output3 | ${jq_binary} -r '.author')
+        author_id=$(echo "$author" | ${jq_binary} -r '.id')
+        case "$output" in # check for event name
+        APPLICATION_COMMAND_PERMISSIONS_UPDATE) data[onApplicationCommandPermissionsUpdate]="$output3"; event emit "applicationCommandPermissionsUpdate" ;;
+        AUTO_MODERATION_RULE_CREATE) data[onAutoModerationRuleCreate]="$output3"; event emit "autoModerationRuleCreate" ;;
+        AUTO_MODERATION_RULE_UPDATE) data[onAutoModerationRuleUpdate]="$output3"; event emit "autoModerationRuleUpdate" ;;
+        AUTO_MODERATION_RULE_DELETE) data[onAutoModerationRuleDelete]="$output3"; event emit "autoModerationRuleDelete" ;;
+        CHANNEL_CREATE) data[onChannelCreate]="$output3"; event emit "channelCreate" ;;
+        CHANNEL_UPDATE) data[onChannelUpdate]="$output3"; event emit "channelUpdate" ;;
+        CHANNEL_DELETE) data[onChannelDelete]="$output3"; event emit "channelDelete" ;;
+        CHANNEL_PINS_UPDATE) data[onChannelPinsUpdate]="$output3"; event emit "channelPinsUpdate" ;;
+        THREAD_CREATE) data[onThreadCreate]="$output3"; event emit "threadCreate" ;;
+        THREAD_UPDATE) data[onThreadUpdate]="$output3"; event emit "threadUpdate" ;;
+        THREAD_DELETE) data[onThreadDelete]="$output3"; event emit "threadDelete"  ;;
+        THREAD_LIST_SYNC) data[onThreadListSync]="$output3"; event emit "threadListSync" ;;
+        THREAD_MEMBER_UPDATE) data[onThreadMemberUpdate]="$output3"; event emit "threadMemberUpdate" ;;
+        THREAD_MEMBERS_UPDATE) data[onThreadMembersUpdate]="$output3"; event emit "threadMembersUpdate" ;;
+        ENTITLEMENT_CREATE) data[onEntitlementCreate]="$output3"; event emit "entitlementCreate" ;;
+        ENTITLEMENT_UPDATE) data[onEntitlementUpdate]="$output3"; event emit "entitlementUpdate" ;;
+        ENTITLEMENT_DELETE) data[onEntitlementDelete]="$output3"; event emit "entitlementDelete" ;;  
+        GUILD_CREATE) data[onGuildCreate]="$output3"; event emit "guildCreate" ;;
+        GUILD_UPDATE) data[onGuildUpdate]="$output3"; event emit "guildUpdate" ;;
+        GUILD_DELETE) data[onGuildDelete]="$output3"; event emit "guildDelete" ;;
+        GUILD_AUDIT_LOG_ENTRY_CREATE) data[onGuildAuditLogEntryCreate]="$output3"; event emit "guildAuditLogEntryCreate" ;;
+        GUILD_BAN_ADD) data[onGuildBanAdd]="$output3"; event emit "guildBanAdd" ;;
+        GUILD_BAN_REMOVE) data[onGuildBanRemove]="$output3"; event emit "guildBanRemove" ;;
+        GUILD_EMOJIS_UPDATE) data[onGuildEmojisUpdate]="$output3"; event emit "guildEmojisCreate" ;;
+        GUILD_STICKERS_UPDATE) data[onGuildStickersUpdate]="$output3"; event emit "guildStickersCreate" ;;
+        GUILD_INTEGRATIONS_UPDATE) data[onGuildIntegrationsUpdate]="$output3"; event emit "guildIntegrationsUpdate" ;;
+        GUILD_MEMBER_ADD) data[onGuildMemberAdd]="$output3"; event emit "guildMemberAdd" ;;
+        GUILD_MEMBER_REMOVE) data[onGuildMemberRemove]="$output3"; event emit "guildMemberRemove" ;;
+        GUILD_MEMBER_UPDATE) data[onGuildMemberUpdate]="$output3"event emit "guildMemberUpdate" ;;
+        GUILD_MEMBERS_CHUNK) data[onGuildMembersChunk]="$output3"; event emit "guildMemberChunk" ;;
+        GUILD_ROLE_CREATE) data[onGuildRoleCreate]="$output3"; event emit "guildRoleCreate" ;;
+        GUILD_ROLE_UPDATE) data[onGuildRoleUpdate]="$output3"; event emit "guildRoleUpdate" ;;
+        GUILD_ROLE_DELETE) data[onGuildRoleUpdate]="$output3"; event emit "guildRoleDelete" ;;
+        GUILD_SCHEDULED_EVENT_CREATE) data[onGuildScheduleEventCreate]="$output3"; event emit "guildScheduledEventCreate";;
+        GUILD_SCHEDULED_EVENT_UPDATE) data[onGuildScheduleEventUpdate]="$output3"; event emit "guildScheduledEventUpdate";;
+        GUILD_SCHEDULED_EVENT_DELETE) data[onGuildScheduleEventDelete]="$output3"; event emit "guildScheduledEventDelete";;
+        GUILD_SCHEDULED_EVENT_USER_ADD) data[onGuildScheduleEventUserAdd]="$output3"; event emit "guildScheduledEventUserAdd";;
+        GUILD_SCHEDULED_EVENT_USER_REMOVE) data[onGuildScheduleEventUserRemove]="$output3"; event emit "guildScheduledEventUserRemove" ;; 
+        GUILD_SOUNDBOARD_SOUND_CREATE) data[uildSoundboardSoundCreate]="$output3"; event emit "guildSoundboardSoundCreate";;
+        GUILD_SOUNDBOARD_SOUND_UPDATE) data[onGuildSoundboardSoundUpdate]="$output3"; event emit "guildSoundboardSoundUpdate";;
+        GUILD_SOUNDBOARD_SOUND_DELETE) data[onGuildSoundboardSoundDelete]="$output3"; event emit "guildSoundboardSoundDelete";;
+        GUILD_SOUNDBOARD_SOUNDS_UPDATE) data[onGuildSoundboardSoundsUpdate]="$output3"; event emit "guildSoundboardSoundsUpdate";;
+        INTEGRATION_CREATE) data[onIntegrationCreate]="$output3"; event emit "integrationCreate" ;;
+        INTEGRATION_UPDATE) data[onIntegrationUpdate]="$output3"; event emit "integrationUpdate" ;;
+        INTEGRATION_DELETE) data[onIntegrationDelete]="$output3"; event emit "integrationDelete" ;;
+        INTERACTION_CREATE) data[onInteractionCreate]="$output3"; event emit "interactionCreate" ;;
+        INVITE_CREATE) data[onInviteCreate]="$output3"; event emit "inviteCreate" ;;
+        INVITE_DELETE) data[onInviteDelete]="$output3"; event emit "inviteDelete" ;;
+        MESSAGE_CREATE) 
+          if [[ "$author_id" != "$bot_id" ]]; then # make sure bot doesn't react on itself
+            if [[ "$respondOnBots" == "$(echo "$author" | ${jq_binary} -r '.bot')" ]]; then
+              data[onMessageCreate]="$output3" 
+              event emit "messageCreate" 
+              data[onMessageCreate]=""
+            fi
+          fi
+        ;;
+        MESSAGE_UPDATE) data[onMessageUpdate]="$output3"; event emit "messageUpdate"  ;;
+        MESSAGE_DELETE) data[onMessageDelete]="$output3"; event emit "messageDelete"  ;;
+        MESSAGE_DELETE_BULK) data[onMessageDeleteBulk]="$output3"; event emit "messageDeleteBulk" ;;
+        MESSAGE_REACTION_ADD) data[onMessageReactionAdd]="$output3"; event emit "messageReactionAdd" ;;
+        MESSAGE_REACTION_REMOVE) data[onMessageReactionRemove]="$output3"; event emit "messageReactionRemove" ;;
+        MESSAGE_REACTION_REMOVE_ALL) data[onMessageReactionRemoveAll]="$output3"; event emit "messageReactionRemoveAll" ;;
+        MESSAGE_REACTION_REMOVE_EMOJI) data[onMessageReactionRemoveEmoji]="$output3"; event emit "messageReactionRemoveEmoji" ;;
+        PRESENCE_UPDATE) data[onPresenceUpdate]="$output3"; event emit "presenceUpdate" ;;
+        STAGE_INSTANCE_CREATE) data[onStageInstanceCreate]="$output3"; event emit "stageInstanceCreate" ;;
+        STAGE_INSTANCE_UPDATE) data[onStageInstanceUpdate]="$output3"; event emit "stageInstanceUpdate" ;;
+        STAGE_INSTANCE_DELETE) data[onStageInstanceDelete]="$output3"; event emit "stageInstanceDelete" ;;
+        SUBSCRIPTION_CREATE)   data[onSubscriptionCreate]="$output3"; event emit "subscriptionCreate"   ;;
+        SUBSCRIPTION_UPDATE)   data[onSubscriptionUpdate]="$output3"; event emit "subscriptionUpdate"   ;;
+        SUBSCRIPTION_DELETE)   data[onSubscriptionDelete]="$output3"; event emit "subscriptionDelete"   ;;
+        TYPING_START)          data[onTypingStart]="$output3"; event emit "typingStart" ;;
+        USER_UPDATE)           data[onUserUpdate]="$output3"; event emit "userUpdate"   ;;
+        VOICE_CHANNEL_EFFECT_SEND) data[onVoiceStateUpdate]="$output3"; event emit "voiceChannelEffectSend" ;;
+        VOICE_STATE_UPDATE) data[onVoiceStateUpdate]="$output3"; event emit "voiceStateUpdate" ;;
+        VOICE_SERVER_UPDATE) data[onVoiceServerUpdate]="$output3"; event emit "voiceServerUpdate" ;;
+        WEBHOOKS_UPDATE) data[onWebhooksUpdate]="$output3"; event emit "webhooksUpdate" ;;
+        MESSAGE_POLL_VOTE_ADD) data[onMessagePollVoteAdd]="$output3"; event emit "messagePollVoteAdd" ;;
+        MESSAGE_POLL_VOTE_REMOVE) data[onMessagePollVoteAdd]="$output3"; event emit "messagePollVoteRemove" ;;
+        esac
+      ;;
+      esac
+    fi
+  done
+# clear variables
+  if [ ! -z "$heartbeat_PID" ] && [ ! -z "$WEBSOCKET_PID" ]; then
+    kill -s SIGTERM $heartbeat_PID $(pgrep -P "$hearbeat_PID") $WEBSOCKET_PID $(pgrep -P "$WEBSOCKET_PID") # stop websocket and heartbeat
+    heartbeat_pid="" 
+    websocket_pid=""
+    echo "$(date) Reconnecting..." 
+  fi
+done
+}
