@@ -52,7 +52,7 @@ function guild {
             route+='/roles'
             case "$2" in 
                 create) method=POST required_args+=("data") ;;
-                modify) method=PATCH required_args+=("data" "role") ;;
+                modify|edit) method=PATCH required_args+=("data" "role") ;;
                 delete|remove) method=DELETE required_args+=("role") ;;
                 *) method=GET required_args+=("role") ;;
             esac
@@ -67,7 +67,7 @@ function guild {
                     required_args+=('name' 'image')
                     data="{\"name\": \"$name\", \"image\": \"$image\", \"roles\": $roles }"
                     ;;
-                modify) 
+                modify|edit) 
                     required_args+=('roles')
                     data="{\"name\": \"$name\"${roles:+, \"roles\": $roles} }"
                     method='PATCH'
@@ -89,7 +89,7 @@ function guild {
         onboarding)
             route+="/onboarding"
             case "$2" in
-                modify) method='PUT' required_args+=('data') ;;
+                modify|edit) method='PUT' required_args+=('data') ;;
             esac
             ;;
         sticker) : ;;

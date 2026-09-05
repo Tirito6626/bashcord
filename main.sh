@@ -1,5 +1,5 @@
 __core="${1:-http}"
-case "$core" in
+case "$__core" in
 	"http") : ;;
 	"__hotreload") return ;;
 esac

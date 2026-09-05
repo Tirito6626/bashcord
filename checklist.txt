@@ -3,7 +3,7 @@ method  API route                                                      function
 GET     /applications/{app.id}/role-connections/metadata               -
 PUT     /applications/{app.id}/role-connections/metadata               -
 --------------- Application ----------------------------------------------
-GET     /applications/@me                                              bot
+GET     /applications/@me                                              user [--id @me]
 PATCH   /applications/@me                                              -
 GET     /applications/{app.id}/activity-instances/{instance_id}        -
 --------------- Audit Log ------------------------------------------------

@@ -42,7 +42,7 @@ function arg_parser {
 	argkey="";
 	for arg in "$@"; do
 		if [[ "$argkey" ]]; then
-			printf -v "${argkey}" "%s" "$arg"
+			[[ "${arg::2}" == '--' ]] && printf -v "${argkey}" "%s" "1" || printf -v "${argkey}" "%s" "$arg"
 			argkey=""
 		fi
 
