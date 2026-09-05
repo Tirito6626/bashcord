@@ -27,7 +27,7 @@ function guild {
             [[ "$after" ]] && query_args+=("-Q limit:$after")
         ;;
         channels) route+='/channels' ;;
-        channel)  ;;
+        channel) : ;;
         members) route+='/members' ;;
         member|user)
             required_args+=('user')
@@ -44,7 +44,9 @@ function guild {
                         delete|remove) method='DELETE' ;;
                         *) error_trace "Invalid action: $2" "$@" ;;
                     esac
-                ;;
+                    ;;
+            esac
+            ;;
         roles) route+='/roles' ;;
         role)
             route+='/roles'
@@ -97,7 +99,6 @@ function guild {
         vanity-url) : ;;
     esac
     is_empty "${required_args[@]}" || { error_trace "$@"; return 1; }
-
     api_request "$route" -X "$method" "${query_args[@]}" ${data:+--data "$data"}
 }
 
