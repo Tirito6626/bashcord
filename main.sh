@@ -11,7 +11,7 @@ jq_binary="${LOCATION}/../deps/jq"
 #websocat_binary="${LOCATION}/../deps/websocat"
 #events_path="${LOCATION}/../modules/bashup.events"
 
-for file in "$LOCATION"/src/functions/*/*.sh "$LOCATION"/src/builders/*.sh; do
+for file in "$LOCATION"/src/functions/*.sh "$LOCATION"/src/builders/*.sh; do
 	source "$file"
 done
 
