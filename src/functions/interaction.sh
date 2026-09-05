@@ -1,12 +1,12 @@
 function interaction {
     arg_parser "$@"
-	local route='' data='' required_args=() method='GET'
+	local route='' required_args=() method='GET'
     local token="${token:-${Interaction[token]}}"
 	case "$1" in
 		reply) 
 		    route="/interactions/${Interaction[id]}/$token/callback" method=POST
 		    required_args=("data")
-		    data="${data:+\{ \"type\": 4, \"data\": \"$data\" \}}" ;;
+		    [[ "$data" ]] && data="{ \"type\": 4, \"data\": \"$data\" \}" ;;
         defer)
 			route="/interactions/${Interaction[id]}/$token/callback" method=POST data='{ "type": 5 }' ;;
 		edit)
@@ -27,7 +27,7 @@ function interaction {
 		error_trace "Invalid action: $1" "$@"
 
 	esac
-	is_empty "${required_args[@]}" && { error_trace "$@"; return 1; }
+	is_empty "${required_args[@]}" && error_trace "$@" && return 1
 
 	api_request "$route" "$method" ${data:+--data "$data"} -A InteractionCallback
 	return $?
