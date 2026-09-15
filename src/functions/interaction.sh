@@ -1,6 +1,6 @@
 function interaction {
+	local route='' required_args=() method='GET' data=''
     arg_parser "$@"
-	local route='' required_args=() method='GET'
     local token="${token:-${Interaction[token]}}" use_response=0
 	case "$1" in
 		reply)
