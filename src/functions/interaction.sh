@@ -14,14 +14,14 @@ function interaction {
 		edit)
 			required_args=("data")
 			route="/webhooks/${Application[id]}/$token/messages/@original" method=POST ;;
-		delete) 
+		delete)
 			route="/webhooks/${Application[id]}/$token/messages/@original" method=DELETE ;;
 		followup)
-			route="/webhooks/${Application[id]}/$token"
+			route="/webhooks/${Application[id]}/$token" method=POST
             [[ "$2" ]] && required_args+=("id") route+="/messages/${id}"
 			case "$2" in
 				get) route+="/messages/${id}" ;;
-				edit) method=PATCH required_args+=("data") ;;
+				edit) method=PATCH; required_args+=("data") ;;
 				delete) method=DELETE ;;
 			esac
 			;;

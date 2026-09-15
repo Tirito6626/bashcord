@@ -9,6 +9,7 @@ _gray=$'\e[38;5;240m'
 _nc=$'\e[0m'
 
 __bc_tag_rest=$'\e[48;5;4m'" REST ${_nc}"
+__bc_tag_json=$'\e[48;5;240m'" shjq ${_nc}"
 function to_hex {
     result=""
     hex="$1"
@@ -37,29 +38,48 @@ EOF
 
 function arg_parser {
 	local arg=''
-	key="" 
-	value=""
+	local key="" 
+	local value=""
 	argkey="";
+	#set -x
 	for arg in "$@"; do
 		if [[ "$argkey" ]]; then
-			[[ "${arg::2}" == '--' ]] && printf -v "${argkey}" "%s" "1" || printf -v "${argkey}" "%s" "$arg"
-			argkey=""
+			value="$arg"
+			#declare -n argkey="$argkey"
+			if [[ "${arg::2}" == '--' ]]; then 
+				value=1
+			else
+				case "${arg}" in
+					true|false) bool_to_int value ;;
+				esac
+			fi
+			declare -g "$argkey"
+			local -n argkey="$argkey"
+			[[ "${argkey}" ]] && argkey+=("$value") || argkey="$value"
+			#printf -v "$argkey" "%s" "$arg"
+			unset -n argkey
+			value=""
 		fi
-
+		#echo "$arg"
 		case "$arg" in
 			--*=*)
 				IFS='=' read key value <<< "$arg"
-				printf -v "${key##--}" "%s" "$value"
+				case "$value" in
+					true|false) bool_to_int value ;;
+				esac
+				key="${key##--}"
+				declare -g "$key"
+				local -n key="$key"
+				[[ "${key}" ]] && key+=("$value") || key="$value"
+				unset -n key
 				;;
 			--*)
 				argkey="${arg##--}"
 			;;
 		esac
 	done
-	[[ "$required_args" ]] && \
-		for arg in "${required_args[@]}"; do
-			[[ -z "${!arg}" ]] && __error="'--${arg}' option missing" && return 1
-		done
+	[[ "$argkey" ]] && eval "$argkey=1"
+	#set +x
 	return 0
 }
 
@@ -94,6 +114,24 @@ function process_uptime {
 	echo "${human_readable_time}"
 }
 
+function error_no_trace {
+	[[ "$__TAG" ]] && printf "%s " "$__TAG"
+	[[ "$__error" ]] || { __error="$1"; shift; }
+    echo $'\e[48;5;1m'"${_bold} ERROR ${_nc} ${_red}${__error}${_nc}" 
+	printf "\n"
+    echo "${_gray}triggered by '${FUNCNAME[1]}'${_nc}"
+	event has error && case "$__TAG" in 
+	"$__bc_tag_rest") 
+		event emit error "$__error" "REST"
+		;;
+	*)
+		event emit error "$__error"
+	esac 
+	unset __error 
+    #echo "triggered by '${_nc}${FUNCNAME[1]}'"
+	#return 1
+	return
+} >&2
 
 function error_trace {
 	[[ "$__TAG" ]] && printf "%s " "$__TAG"
@@ -101,9 +139,10 @@ function error_trace {
     echo $'\e[48;5;1m'"${_bold} ERROR ${_nc} ${_red}${__error}${_nc}" 
     pos="$1"
     shift
-    local args=("${@@Q}");
+    local args=("${@}");
     [ "$pos" -eq "$pos" ] 2>/dev/null && args[$pos]="${_red}${args[$pos]:-''}${_nc}"
-    echo "${_gray}> ${FUNCNAME[1]}${_nc} ${args[@]}"
+	printf "\n"
+    echo "${_gray}> ${FUNCNAME[1]}${_nc} ${args[@]# }"
     printf "\n"
 	if [[ "$SHOW_FULL_TRACE" != 1 ]]; then 
 		echo "${_gray}function trace: (last 5)${_nc}"
@@ -129,10 +168,11 @@ function error_trace {
 	*)
 		event emit error "$__error"
 	esac 
-	unset __error 
+	unset __error
+	return
     #echo "triggered by '${_nc}${FUNCNAME[1]}'"
 	#return 1
-}
+} >&2
 
 declare -A status_code=(
 	[101]="101 Switching Protocols"
@@ -154,19 +194,20 @@ declare -A status_code=(
 
 declare -gA Response
 function api_request {
-	local argscount=0 argtype=0
+	local argscount=0 argtype='' response_code=0 method=''
 	local path="$1"
 	#local method="$2"
 	local outkeys=''
-	local args=("$@")
-	shift
-	for arg in "$@"; do
+	local args=("${@:1}")
+
+	#trap profiler DEBUG
+	for arg in "${@:1}"; do
 		case "$arg" in
 			-q|--query) argtype=0 ;;
 			-d|--data) argtype=1 ;;
 			-H|--header) argtype=2 ;;
             -A|--arr) argtype=3 ;;
-			POST|PATCH|PUT|DELETE) method="$arg" ;;
+			POST|PATCH|PUT|DELETE) [[ -z "$method" ]] && method="$arg"; continue ;;
 		esac
 		((++argscount))
 		case "$argtype" in 
@@ -188,55 +229,174 @@ function api_request {
     echo > "$CAPTURE_OUT_PATH"
 	#set -x
 	if [[ "${body::1}" ]]; then
-		request_output="$(curl "https://discord.com/api/v${API_VERSION:-=10}${path}${outkeys}" \
+			[[ -z "$method" ]] && method="POST"
+		#echo "https://discord.com/api/v${API_VERSION:=10}${path}${outkeys}" "$method $body"
+		#set -x
+		request_output="$(curl "https://discord.com/api/v${API_VERSION:=10}${path}${outkeys}" \
 			-H "Authorization: Bot ${__token}" \
 			-H "Content-Type: application/json" \
-			${method:+ -X "$method"} \
+			-H "User-Agent: bashcord/2.0.0" \
+			-X "${method}" \
 			-d "$body" \
-            -w "%{stderr}%{response_code} %header{X-RateLimit-Limit} %header{X-RateLimit-Remaining}" \
+            -w "%{stderr}%{response_code} %header{Retry-After} %header{X-RateLimit-Limit} %header{X-RateLimit-Remaining}" \
 			--silent \
 			--show-error 2>"$CAPTURE_OUT_PATH"
-            )"
+        )"
+		#set +x
 	else
-		request_output="$(curl "https://discord.com/api/v${API_VERSION:-=10}${path}${outkeys}" \
+		[[ -z "$method" ]] && method="GET"
+		#echo "https://discord.com/api/v${API_VERSION:=10}${path}${outkeys}" "$method $body"
+		#set -x
+		request_output="$(curl "https://discord.com/api/v${API_VERSION:=10}${path}${outkeys}" \
 			-H "Authorization: Bot ${__token}" \
 			-H "Content-Type: application/json" \
-			${method:+ -X "$method"} \
-            -w "%{stderr}%{response_code} %header{Retry-After} %header{X-RateLimit-Limit} %header{X-RateLimit-Remaining} " \
+			-H "User-Agent: bashcord/2.0.0" \
+			-X "${method}" \
+            -w "%{stderr}%{response_code}|%header{Retry-After} %header{X-RateLimit-Limit} %header{X-RateLimit-Remaining}" \
 			--silent \
 			--show-error 2>"$CAPTURE_OUT_PATH"
 		)"
+		#set +x
 	fi
-	read response_code ratelimit_reset_after ratelimit_total ratelimit_remaining < "$CAPTURE_OUT_PATH"
+	#set +x
+	IFS='|' read response_code ratelimit_info < "$CAPTURE_OUT_PATH" 
+	read ratelimit_reset_after ratelimit_total ratelimit_remaining <<< "$ratelimit_info"
     #cat "$CAPTURE_OUT_PATH"
-	if [[ "$response_code" == "curl:" ]]; then
+	if [[ "$response_code" == *"curl:"* ]]; then
 		read error <"$CAPTURE_OUT_PATH"
-		error_trace "$error" "" "" "${args[@]}" >&2
+		error_trace "$error"$'\n'"${_gray}while accessing 'https://discord.com/api/v${API_VERSION:=10}${path}${outkeys}'" "" "" "${args[@]}" >&2
         return 1
 	fi
     #echo "$response_code $ratelimit_total $ratelimit_remaining"
     time_ms
     request_time=$((ms - _ms1))
     echo "$request_time" > "$LOCATION/.latency"
-    if (( ${response_code:=0} >= 400 )); then
+	#set -x
+	: "${response_code:=0}"
+	response_code="${response_code::3}"
+    if (( response_code >= 400 )); then
         case "${response_code}" in
 			429) 
 				parse_sec "${ratelimit_reset_after}"
 				__TAG="${__bc_tag_rest}" error_trace "Ratelimited. Try again in ${human_readable_time} ${_nc}" "" "" "${args[@]}" >&2 ;;
 			*) 
-				json_pretty "$request_output"
-				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} $json_pretty_output" "" "" "${args[@]}" >&2
+				[[ "${request_output::1}" == '{' ]] && json_pretty "$request_output"
+				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} ${json_pretty_output:-$request_output}" "" "" "${args[@]}" >&2
         esac
         return 1
     else
 		set +x
+		#set -x
 		json_to_arr "$request_output" "${arr_name:-Response}" "" false true true
+		#set +x
         return 0
     fi
 }
+
 function is_empty {
 	for arg in "$@"; do
 		[[ -z "${!arg}" ]] && __error="'--${arg}' option missing" && return 0
 	done
 	return 1
+}
+
+function add_if_exists {
+	local -n arr="$1"
+	local type="$2"
+	shift 2
+	for key in "${@}"; do
+		local value="${!key}"
+		__trash+=("$key")
+		[[ -z "${value}" ]] && continue
+		case "$type" in
+			1|string)
+				if [[ "${value:0:1}" == '"' && "${value: -1}" == '"' ]]; then 
+					arr[$key]="${value}"
+				else
+					arr[$key]="\"${value}\""
+				fi
+				;;
+			2|int)
+				if printf "%f" "$value" >/dev/null 2>&1; then 
+					arr[$key]="${value}"
+				else
+					__error="Invalid integer value '${value}' in '$key'"
+					return 1
+				fi
+				;;
+			3|bool)
+				int_to_bool value
+				case "$value" in
+					true|false) arr[$key]="${value}" ;;
+					*)
+					__error="Invalid boolean value '${value}' in '$key'"
+					return 1
+				esac
+				;;
+			4|object|array)
+				json_trim "$value" true true
+				if (( $? )); then
+					__error="$__shjq_error"
+					return 1
+				fi
+				arr[$key]="${value}"
+				;;
+		esac
+	done
+}
+
+function add_arr_if_exists {
+	local -n arr="$1"
+	local -a result
+	local type="$2"
+	shift 2
+	for i in "${@}"; do
+		[[ "${!i}" ]] || continue
+		__trash+=("$i")
+		local -n ref_arr="$i"
+		case "$type" in
+		1|string)
+			for value in "${ref_arr[@]}"; do
+				[[ -z "${value}" ]] && continue 
+				if [[ "${value:0:1}" == '"' && "${value: -1}" == '"' ]]; then 
+					result+=("${value}")
+				else
+					result+=("\"${value}\"")
+				fi
+			done
+			;;
+		2|int)
+			for value in "${ref_arr[@]}"; do
+				[[ -z "${value}" ]] && continue 
+				if printf "%f" "$value" >/dev/null 2>&1; then 
+					result+=("${value}")
+				else
+					__error="Invalid integer value '${value}' in '${!ref_arr}'"
+					return 1
+				fi
+			done
+			;;
+		3|object|array)
+			for value in "${ref_arr[@]}"; do
+				json_trim "$value" true true
+				if (( $? )); then
+					__error="$__shjq_error (${!ref_arr})"
+					return 1
+				fi
+				result+=("${value}")
+			done
+			;;
+		4|kv)
+			for value in "${ref_arr[@]}"; do
+				if [[ "$value" != *:* ]]; then
+					__error="'${!ref_arr}' expects 'key:value' format"
+					return 1
+				fi
+				kv_type="$kv_type" kv_to_object value
+				echo "$value"
+				result+=("${value}")
+			done
+		esac
+		IFS=',' arr["${!ref_arr}s"]="[${result[*]}]"
+	done
 }

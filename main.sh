@@ -21,8 +21,10 @@ for file in "$LOCATION"/modules/*; do
 done
 
 source "$LOCATION/src/types.sh"
+echo "loaded structs (src/types.sh)"
 [[ $? > 0 ]] && echo "failed to load types file ($LOCATION/src/types.sh). cannot proceed"
 source "$LOCATION/src/utils.sh"
+echo "loaded utils (src/utils.sh)"
 [[ $? > 0 ]] && echo "failed to load utils file ($LOCATION/src/utils.sh). cannot proceed"
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM # make sure all child processes are killed on exit
 
@@ -36,6 +38,8 @@ function capture_out() {
 	${@:2} >"$CAPTURE_OUT_PATH"
 	read -r -d $'\0' $var <"$CAPTURE_OUT_PATH"
 }
+
+
 
 
 function initialize {

@@ -23,12 +23,12 @@
 #    [DirectMessagePolls]=33554432
 #)
 
-declare -A application_install_types=(
-    [guild_install]=0
-    [user_install]=1
+declare -gA application_install_types=(
+    [guild]=0
+    [user]=1
 )
 
-declare -A channel_types=(
+declare -gA channel_types=(
     [guild_text]=0
     [dm]=1
     [guild_voice]=2
@@ -44,7 +44,7 @@ declare -A channel_types=(
     [guild_media]=16
 )
 
-declare -A interaction_types=(
+declare -gA interaction_types=(
 	[pong]=1
 	[channel_message]=4
 	[deferred_channel_message]=5
@@ -54,7 +54,7 @@ declare -A interaction_types=(
 	[modal]=9
 )
 
-declare -A activity_types=(
+declare -gA activity_types=(
     [playing]=0
     [streaming]=1
     [listening]=2
@@ -63,7 +63,7 @@ declare -A activity_types=(
     [competing]=5
 )
 
-declare -A button_styles=(
+declare -gA button_styles=(
     [primary]=1
     [secondary]=2
     [success]=3
@@ -72,7 +72,7 @@ declare -A button_styles=(
     [premium]=6
 )
 
-declare -A application_types=(
+declare -gA application_types=(
     [chat_input]=1
     [slash]=1
     [user]=2
@@ -80,12 +80,14 @@ declare -A application_types=(
     [primary_entry_point]=4
 )
 
-declare -A application_option_types=(
+declare -gA application_option_types=(
     [sub_command]=1
     [sub_command_group]=2
     [string]=3
+    [int]=4
     [integer]=4
     [boolean]=5
+    [bool]=5
     [user]=6
     [channel]=7
     [role]=8

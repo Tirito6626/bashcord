@@ -98,7 +98,7 @@ function guild {
         template) : ;;
         vanity-url) : ;;
     esac
-    is_empty "${required_args[@]}" || { error_trace "$@"; return 1; }
+    is_empty "${required_args[@]}" && { error_trace "$@"; return 1; }
     api_request "$route" -X "$method" "${query_args[@]}" ${data:+--data "$data"}
 }
 
