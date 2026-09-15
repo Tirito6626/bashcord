@@ -16,13 +16,12 @@ function interaction {
 			route="/webhooks/${Application[id]}/$token/messages/@original" method=POST ;;
 		delete)
 			route="/webhooks/${Application[id]}/$token/messages/@original" method=DELETE ;;
-		followup)
+		followup|follow_up)
 			route="/webhooks/${Application[id]}/$token" method=POST
-            [[ "$2" ]] && required_args+=("id") route+="/messages/${id}"
 			case "$2" in
-				get) route+="/messages/${id}" ;;
-				edit) method=PATCH; required_args+=("data") ;;
-				delete) method=DELETE ;;
+				get) required_args+=("id") route+="/messages/${id}" ;;
+				edit) required_args+=("id") method=PATCH; required_args+=("data") ;;
+				delete) required_args+=("id") method=DELETE ;;
 			esac
 			;;
 		*)
