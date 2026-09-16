@@ -203,7 +203,7 @@ function api_request {
 	#trap profiler DEBUG
     #set -x
 	for arg in "${@:1}"; do
-    	echo "$arg"
+    	#echo "$arg"
 		case "$arg" in
 			-q|--query) argtype=0; continue ;;
 			-d|--data) argtype=1; continue ;;
@@ -230,7 +230,7 @@ function api_request {
     time_ms
     _ms1="$ms"
     echo > "$CAPTURE_OUT_PATH"
-    echo "$body"
+   # echo "$body"
 	#set -x
 	if [[ "${body::1}" ]]; then
 			[[ -z "$method" ]] && method="POST"
@@ -285,11 +285,11 @@ function api_request {
 				__TAG="${__bc_tag_rest}" error_trace "Ratelimited. Try again in ${human_readable_time} ${_nc}" "" "" "${args[@]}" >&2 
 				;;
             400)
-				[[ "${request_output::1}" == '{' ]] && json_pretty "$request_output"
-				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} ${json_pretty_output:-$request_output}"$'\n\n'"${_gray} POST body: $body" "" "" "${args[@]}" >&2 
+				[[ "${request_output::1}" == '{' ]] && sub=true json_pretty "$request_output"
+				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} ${json_pretty_output:-$request_output}"$'\n\n'"${_gray} POST body: $body"$'\n' "" "" "${args[@]}" >&2 
 				;;
 			*)
-				[[ "${request_output::1}" == '{' ]] && json_pretty "$request_output"
+				[[ "${request_output::1}" == '{' ]] && sub=true json_pretty "$request_output"
 				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} ${json_pretty_output:-$request_output}" "" "" "${args[@]}" >&2
         esac
         return 1
