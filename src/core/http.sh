@@ -56,7 +56,7 @@ function handleEvent {
     #echo "${FictionRequestBody[type]}" >&2
     case "${FictionRequest[method]}" in
         POST)
-            declare -p FictionRequestBody
+            #declare -p FictionRequestBody
             if verifyRequest; then
                 case "${FictionRequestBody[type]}" in
                 1)

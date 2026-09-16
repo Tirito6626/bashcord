@@ -35,7 +35,7 @@ function capture_out() {
 	local var="$1"
 	#printf -v "$var" "$(${@:2})"
 #  return
-	${@:2} >"$CAPTURE_OUT_PATH"
+	"${@:2}" >"$CAPTURE_OUT_PATH"
 	read -r -d $'\0' $var <"$CAPTURE_OUT_PATH"
 }
 
