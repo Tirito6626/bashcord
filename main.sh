@@ -45,7 +45,7 @@ function capture_out() {
 function initialize {
 case "$__core" in
 	"http")
-		source "${LOCATION}/fiction/fiction.so.sh" dev
+		source "${LOCATION}/fiction/fiction.so.sh"
 		source "$LOCATION/src/core/http.sh"
 		fiction.serve "/api/interactions" "handleEvent"
 		fiction.server
