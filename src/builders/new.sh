@@ -93,7 +93,7 @@ function new {
                 return 1
             fi
             local route="/applications/${Application[id]}/commands" type='' json=''
-            required_args=("type" "name")
+            required_args=("type" "name" "description")
             arg_parser "$@"
             [[ "$guild" ]] && route+="/guilds/$guild"
             if [[ -z "$data" ]]; then

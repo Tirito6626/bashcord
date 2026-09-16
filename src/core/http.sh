@@ -73,9 +73,9 @@ function handleEvent {
                     fiction.respond 204
                     ;;
                 *)
-                    echo "[bashcord/http] received unsupported type" >&2
+                    echo "[bashcord/http] received unsupported type: ${FictionRequestBody[type]}" >&2
                     FictionResponseHeaders['Content-Type']="application/json"
-                    fiction.respond 204
+                    fiction.respond 400
                 ;;
                 esac
             else
