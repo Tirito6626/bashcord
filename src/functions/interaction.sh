@@ -1,5 +1,5 @@
 function interaction {
-	local route='' required_args=() method='GET' data=''
+	local route='' required_args=() method='GET' data='' args=()
     arg_parser "$@"
     local token="${token:-${Interaction[token]}}" use_response=0
 	case "$1" in
@@ -29,12 +29,13 @@ function interaction {
 
 	esac
 	is_empty "${required_args[@]}" && error_trace "$@" && return 1
-
+	[[ "$data" ]] && args+=(--data "$data")
 	if (( use_response )); then
         FictionResponseHeaders[content-type]="application/json"
         fiction.respond 200 "$data"
-    else 
-        api_request "$route" "$method" ${data:+--data "$data"} -A InteractionCallback
+    else
+		declare -gA InteractionCallback
+        api_request "$route" "$method" "${args[@]}" -A InteractionCallback
     fi
 	return $?
 }

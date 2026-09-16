@@ -194,19 +194,21 @@ declare -A status_code=(
 
 declare -gA Response
 function api_request {
-	local argscount=0 argtype='' response_code=0 method=''
+	local argscount=0 argtype='' response_code=0 method='' body=''
 	local path="$1"
 	#local method="$2"
 	local outkeys=''
 	local args=("${@:1}")
 
 	#trap profiler DEBUG
+    #set -x
 	for arg in "${@:1}"; do
+    	echo "$arg"
 		case "$arg" in
-			-q|--query) argtype=0 ;;
-			-d|--data) argtype=1 ;;
-			-H|--header) argtype=2 ;;
-            -A|--arr) argtype=3 ;;
+			-q|--query) argtype=0; continue ;;
+			-d|--data) argtype=1; continue ;;
+			-H|--header) argtype=2; continue ;;
+            -A|--arr) argtype=3; continue ;;
 			POST|PATCH|PUT|DELETE) [[ -z "$method" ]] && method="$arg"; continue ;;
 		esac
 		((++argscount))
@@ -223,10 +225,12 @@ function api_request {
                 ;;
 		esac
 	done
+#set +x
 	#echo "[bashcord/http] $method $route" >&2
     time_ms
     _ms1="$ms"
     echo > "$CAPTURE_OUT_PATH"
+    echo "$body"
 	#set -x
 	if [[ "${body::1}" ]]; then
 			[[ -z "$method" ]] && method="POST"
@@ -278,8 +282,13 @@ function api_request {
         case "${response_code}" in
 			429) 
 				parse_sec "${ratelimit_reset_after}"
-				__TAG="${__bc_tag_rest}" error_trace "Ratelimited. Try again in ${human_readable_time} ${_nc}" "" "" "${args[@]}" >&2 ;;
-			*) 
+				__TAG="${__bc_tag_rest}" error_trace "Ratelimited. Try again in ${human_readable_time} ${_nc}" "" "" "${args[@]}" >&2 
+				;;
+            400)
+				[[ "${request_output::1}" == '{' ]] && json_pretty "$request_output"
+				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} ${json_pretty_output:-$request_output}"$'\n\n'"${_gray} POST body: $body" "" "" "${args[@]}" >&2 
+				;;
+			*)
 				[[ "${request_output::1}" == '{' ]] && json_pretty "$request_output"
 				__TAG="${__bc_tag_rest}" error_trace "HTTP ${status_code[$response_code]:-$response_code}${_nc} ${json_pretty_output:-$request_output}" "" "" "${args[@]}" >&2
         esac

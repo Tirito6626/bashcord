@@ -1,6 +1,6 @@
 function guild {
     arg_parser "$@"
-    local route='' route="/guilds/${id}" required_args=('id') method='GET' query_args=()
+    local route='' route="/guilds/${id}" required_args=('id') method='GET' args=()
     case "$1" in
         preview) route+='/preview' ;;
         ban)
@@ -22,9 +22,9 @@ function guild {
             ;;
         bans)
             route+="/bans/" 
-            [[ "$limit" ]] && query_args+=("-Q limit:$limit")
-            [[ "$before" ]] && query_args+=("-Q before:$before")
-            [[ "$after" ]] && query_args+=("-Q limit:$after")
+            [[ "$limit" ]] && args+=("-Q" "limit:$limit")
+            [[ "$before" ]] && args+=("-Q" "before:$before")
+            [[ "$after" ]] && args+=("-Q" "limit:$after")
         ;;
         channels) route+='/channels' ;;
         channel) : ;;
@@ -99,7 +99,8 @@ function guild {
         vanity-url) : ;;
     esac
     is_empty "${required_args[@]}" && { error_trace "$@"; return 1; }
-    api_request "$route" -X "$method" "${query_args[@]}" ${data:+--data "$data"}
+    [[ "$data" ]] && args+=(--data "$data")
+    api_request "$route" -X "$method" "${args[@]}"
 }
 
 function guild_prune_count {
