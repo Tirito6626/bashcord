@@ -28,6 +28,11 @@ declare -gA application_install_types=(
     [user]=1
 )
 
+declare -gA integration_types=(
+    [guild]=0
+    [user]=1
+)
+
 declare -gA channel_types=(
     [guild_text]=0
     [dm]=1

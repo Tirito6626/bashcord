@@ -108,6 +108,9 @@ function new {
                         fi
                         type="${application_types[$type]}"
                 esac
+                [[ "$integration_type" ]] && for i in "${!integration_type[@]}"; do
+                    integration_type[i]="${integration_types[${integration_type[$i]}]}"
+                done
                 #set -x
 
                 local -A command_payload=(
